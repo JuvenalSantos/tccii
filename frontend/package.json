@@ -1,0 +1,42 @@
+{
+  "name": "VInT",
+  "version": "0.0.1",
+  "description": "",
+  "main": "Gruntfile.js",
+  "scripts": {
+    "test": "echo \\\"Error: no test specified\\\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/JuvenalSantos/vint.git"
+  },
+  "keywords": [
+    "VInT",
+    "Twitter",
+    "Visualização de informações",
+    "Análise de Sentimentos"
+  ],
+  "author": "Juvenal do Santos",
+  "bugs": {
+    "url": "https://github.com/JuvenalSantos/vint/issues"
+  },
+  "homepage": "https://github.com/JuvenalSantos/vint",
+  "devDependencies": {
+    "angular-validation": "^1.3.0",
+    "grunt": "^0.4.5",
+    "grunt-concat-css": "^0.3.1",
+    "grunt-contrib-clean": "^0.6.0",
+    "grunt-contrib-concat": "^0.5.0",
+    "grunt-contrib-connect": "^0.8.0",
+    "grunt-contrib-copy": "^0.5.0",
+    "grunt-contrib-requirejs": "^0.4.4",
+    "grunt-contrib-uglify": "^0.5.1",
+    "grunt-contrib-watch": "^0.6.1",
+    "grunt-ftp-deploy": "~0.1.9",
+    "time-grunt": "^0.4.0"
+  },
+  "dependencies": {
+    "angular-validation": "^1.3.0",
+    "grunt-contrib-cssmin": "^0.10.0"
+  }
+}

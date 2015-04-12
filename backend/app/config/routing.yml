@@ -1,0 +1,9 @@
+portotechas_app:
+    resource: "@PortotechAppBundle/Controller/"
+    type:     annotation
+    prefix:   /api
+    defaults: { _format: 'json' }
+
+NelmioApiDocBundle:
+    resource: "@NelmioApiDocBundle/Resources/config/routing.yml"
+    prefix:   /api/doc

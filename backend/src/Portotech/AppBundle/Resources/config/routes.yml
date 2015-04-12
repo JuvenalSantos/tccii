@@ -1,0 +1,4 @@
+portotech_app_Area:
+    type: rest
+    resource: "Portotech\AppBundle\Controller\AreaController"
+    defaults: { _format: 'json' }

@@ -1,0 +1,63 @@
+<div class="content">
+	<a href="#/User/add" class="pull-right btn btn-primary btn-add">
+		<span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Adicionar Usuário
+	</a>
+	<div class="clearfix"></div>
+	<div class="panel panel-default">
+		<div class="panel-heading clearfix">
+			<h5 class="pull-left">Usuários</h5>
+			<h6 class="pull-right" ng-click="isCollapsed = !isCollapsed">Busca avançada 
+				<span class="fa" data-ng-class="{'fa-caret-down ':!isCollapsed, 'fa-caret-right': isCollapsed}"></span>
+			</h6>
+		</div>
+
+		<div class="panel panel-default" collapse="isCollapsed">
+			<div class="panel-body">
+				<form class="form-inline" role="form">
+					<div class="form-group">
+				    	<input type="text" class="form-control" id="rs" data-ng-model="search.nome" placeholder="Nome">
+					</div>
+					<div class="checkbox">
+				    	<label>
+				      		<input type="checkbox" data-ng-model="search.exibir_inativos"> Exibir inativos
+				    	</label>
+				  	</div>
+					<button type="submit" class="btn btn-default pull-right" data-ng-click="searchAction();">Pesquisar</button>
+				</form>
+			</div>
+		</div>
+
+		<div data-ng-if="empty" class="panel-body">
+			<p class="text-center">Não foi encontrado resultado para a pesquisa.</p>
+		</div>
+		<table data-ng-if="!empty && users" class="table table-bordered table-hover table-striped table-condensed panel-body">
+			<thead>	
+				<th>Nome</th>
+				<th>Área</th>
+				<th>Perfil</th>
+				<th>Situação</th>
+				<th colspan="2"></th>
+			</thead>
+			<tbody>
+				<tr data-ng-repeat="user in users">
+					<td>{{user.nome}}</td>
+					<td>{{user.area_area[0].nome}}{{ user.area_area.length > 1 ? '...' : '' }}</td>
+					<td>{{user.fk_perfil.nome}}</td>
+					<td>{{isActive(user.data_exclusao) ? 'Ativo' : 'Excluído'}}</td>
+					
+					<td class="table-icon table-icon-edit" data-ng-class="{ 'disabled' : !isActive(user.data_exclusao) }">
+						<a href="#/User/{{user.id_usuario}}" class="fa fa-pencil" data-ng-if="isActive(user.data_exclusao)"  title="Editar"></a>
+
+						<span class="fa fa-pencil" data-ng-if="!isActive(user.data_exclusao)"></span>
+					</td>
+
+					<td class="table-icon table-icon-delete">
+						<span data-ng-click="confirmRemove('/User/remove/' + user.id_usuario);" class="fa fa-check-square-o" data-ng-if="isActive(user.data_exclusao)" title="Excluir"></span>
+
+						<span data-ng-click="confirmActivate('/User/activate/' + user.id_usuario);" class="fa fa-square-o" data-ng-if="!isActive(user.data_exclusao)" title="Ativar"></span>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</div>

@@ -1,0 +1,68 @@
+{
+  "name": "pague360mpayments_bank",
+  "version": "0.0.1",
+  "homepage": "https://github.com/Portotech/pague360mpayments_bank",
+  "authors": [
+    "Anderson Koester <anderson.koester@portotech.org>"
+  ],
+  "description": "Application frontend to manage all fake bank functionalities",
+  "keywords": [
+    "TG&Sons",
+    "Bank"
+  ],
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular": "~1.2.22",
+    "bootstrap": "~3.2.0",
+    "jquery": "~2.1.1",
+    "modernizr": "~2.8.3",
+    "requirejs": "~2.1.14",
+    "q": "~2.0.0",
+    "angular-route": "~1.2.23",
+    "angular-resource": "~1.2.23",
+    "toastr": "~2.0.3",
+    "restangular": "~1.4.0",
+    "lodash": "~2.4.1",
+    "fontawesome": "~4.2.0",
+    "ngAutocomplete": "~1.0.0",
+    "sweetalert": "~0.1.1",
+    "angular-ui-bootstrap": "~0.11.2",
+    "morrisjs": "~0.5.1",
+    "raphael": "~2.1.2",
+    "ngImgCrop": "~0.2.0",
+    "angular-input-masks": "~1.3.1",
+    "angular-i18n": "~1.3.14"
+  },
+  "devDependencies": {
+    "angular": "~1.2.22",
+    "bootstrap": "~3.2.0",
+    "jquery": "~2.1.1",
+    "modernizr": "~2.8.3",
+    "requirejs": "~2.1.14",
+    "q": "~2.0.0",
+    "angular-route": "~1.2.23",
+    "angular-resource": "~1.2.23",
+    "toastr": "~2.0.3",
+    "restangular": "~1.4.0",
+    "lodash": "~2.4.1",
+    "fontawesome": "~4.2.0",
+    "ngAutocomplete": "~1.0.0",
+    "sweetalert": "~0.3.2",
+    "angular-ui-bootstrap": "~0.11.2",
+    "morrisjs": "~0.5.1",
+    "raphael": "~2.1.2",
+    "ngImgCrop": "~0.2.0",
+    "jquery-validation": "~1.13.1",
+    "jQuery-Mask-Plugin": "~1.10.13",
+    "angular-utf8-base64": "~0.0.5",
+    "angular-input-masks": "~1.3.1",
+    "angular-i18n": "~1.3.14"
+  }
+}
