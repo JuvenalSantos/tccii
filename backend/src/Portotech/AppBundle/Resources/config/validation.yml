@@ -1,0 +1,8 @@
+Portotech\AppBundle\Entity\FileUpload:
+    properties:
+        file:
+            - NotNull: ~
+            - NotBlank: ~
+            - File:
+                maxSize: 100M
+                mimeTypes: [text/plain]
