@@ -1,8 +1,27 @@
 Portotech\AppBundle\Entity\FileUpload:
     properties:
         file:
-            - NotNull: ~
-            - NotBlank: ~
+            - NotBlank: {message:"message.fileUpload.NotBlank"}
             - File:
                 maxSize: 100M
                 mimeTypes: [text/plain]
+
+Portotech\AppBundle\Entity\Visualization:
+    properties:
+        name:
+            - NotBlank: {message:"message.name.NotBlank"}
+        file:
+            - NotBlank: {message:"message.file.NotBlank"}
+        sentiments:
+            - Count:
+                min: 2
+                minMessage: "message.sentiments.Count"
+
+Portotech\AppBundle\Entity\Sentimentscale:
+    properties:
+        sentiment:
+            - NotBlank: {message:"message.sentiment.NotBlank"}
+        description:
+            - NotBlank: {message:"message.description.NotBlank"}
+        visualization:
+            - NotBlank: {message:"message.visualization.NotBlank"}

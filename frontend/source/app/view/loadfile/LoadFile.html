@@ -12,7 +12,7 @@
 
                     <div class="form-group" data-ng-if="isSelectedFile()">
                         <label>Escala de sentimentos</label>
-                        <div class="form-group" data-ng-repeat="sentiment in form.sentimentScale">
+                        <div class="form-group" data-ng-repeat="sentiment in form.sentiments">
                             <div class="input-group">
                                 <div class="input-group-addon num-sentiment">{{sentiment.sentiment}}</div>
                                 <input data-ng-model="sentiment.description" class="form-control" type="text" placeholder="Informe a descrição para este sentimento" maxlength="30">

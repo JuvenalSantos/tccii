@@ -19,6 +19,7 @@ define(['../module'], function (controllers) {
 
         function successHandler(result) {
             swalSuccess("Importação de dados realizada com sucesso!");
+            $location.path("/Home");
 
         }
 
@@ -37,14 +38,14 @@ define(['../module'], function (controllers) {
                 return false;
             }
 
-            if( isNullBlank($scope.form.file) || $scope.form.sentimentScale == null ) {
+            if( isNullBlank($scope.form.file) || $scope.form.sentiments == null ) {
                 swalInfo("O arquivo selecionado é inválido!");
                 return false;
             }
 
             var value;
-            for(var i in $scope.form.sentimentScale) {
-                value = $scope.form.sentimentScale[i];
+            for(var i in $scope.form.sentiments) {
+                value = $scope.form.sentiments[i];
                 if( value.description == "" ) {
                     swalInfo("A escala de sentimentos deve possuir todos os sentimentos preenchidos.");
                     return false;
@@ -86,20 +87,20 @@ define(['../module'], function (controllers) {
         });
 
         function setSentimentScale(scale) {
-            $scope.form.sentimentScale = new Array();
+            $scope.form.sentiments = new Array();
             angular.forEach(scale, function(value, key){
                 this.push({
                     "sentiment": value,
                     "description": ""
                 });
 
-            }, $scope.form.sentimentScale);
+            }, $scope.form.sentiments);
         }
 
         $scope.deleteSelectedFile = function() {
             $scope.fileSelected = false;
             $scope.form.file = null;
-            $scope.form.sentimentScale = null;
+            $scope.form.sentiments = null;
         }
 
         $scope.isSelectedFile = function() {

@@ -12,4 +12,12 @@ use Doctrine\ORM\EntityRepository;
  */
 class VisualizationRepository extends EntityRepository
 {
+
+    public function findAllOrderByDesc() {
+        return $this->getEntityManager()->getRepository("PortotechAppBundle:Visualization")->findBy(
+            array(),
+            array('creatAt' => 'DESC')
+        );
+    }
+
 }

@@ -24,7 +24,7 @@ class Sentimentscale
     /**
      * @var boolean
      *
-     * @ORM\Column(name="sentiment", type="boolean", precision=0, scale=0, nullable=false, unique=false)
+     * @ORM\Column(name="sentiment", type="integer", precision=0, scale=0, nullable=false, unique=false)
      */
     private $sentiment;
 
@@ -38,7 +38,7 @@ class Sentimentscale
     /**
      * @var \Portotech\AppBundle\Entity\Visualization
      *
-     * @ORM\ManyToOne(targetEntity="Portotech\AppBundle\Entity\Visualization")
+     * @ORM\ManyToOne(targetEntity="Portotech\AppBundle\Entity\Visualization", inversedBy="sentiments")
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="Visualization_id", referencedColumnName="id", nullable=true)
      * })

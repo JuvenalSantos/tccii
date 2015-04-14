@@ -95,6 +95,8 @@ class Tweet
     private $visualization;
 
 
+    private $sentiments;
+
 
     /**
      * Get id

@@ -45,7 +45,7 @@ class VisualizationController extends FOSRestController
     {
         $em = $this->getDoctrine()->getManager();
 
-        $entities = $em->getRepository('PortotechAppBundle:Visualization')->findAll();
+        $entities = $em->getRepository('PortotechAppBundle:Visualization')->findAllOrderByDesc();
 
         return $this->view($entities);
     }

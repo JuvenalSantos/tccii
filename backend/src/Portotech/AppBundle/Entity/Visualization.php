@@ -2,6 +2,7 @@
 
 namespace Portotech\AppBundle\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -42,7 +43,20 @@ class Visualization
      */
     private $file;
 
+    /**
+     * @var \Portotech\AppBundle\Entity\Sentimentscale
+     *
+     * @ORM\OneToMany(targetEntity="Portotech\AppBundle\Entity\Sentimentscale", mappedBy="visualization", cascade={"all"});
+     */
+    private $sentiments;
 
+
+    /**
+     * Constructor
+     */
+    public function __construct(){
+        $this->sentiments = new ArrayCollection();
+    }
 
     /**
      * Get id
@@ -121,5 +135,37 @@ class Visualization
     public function getFile()
     {
         return $this->file;
+    }
+
+    /**
+     * Add Sentimentscale
+     *
+     * @param \Portotech\AppBundle\Entity\Sentimentscale $sentiment
+     * @return Visualization
+     */
+    public function addSentiment(\Portotech\AppBundle\Entity\Sentimentscale $sentiment)
+    {
+        $sentiment->setVisualization($this);
+        $this->getSentiments()->add($sentiment);
+
+        return $this;
+    }
+
+    /**
+     * Remove Sentimentscale
+     *
+     * @param \Portotech\AppBundle\Entity\Sentimentscale $sentiment
+     */
+    public function removeSentiment(\Portotech\AppBundle\Entity\Sentimentscale $sentiment)
+    {
+        $this->getSentiments()->removeElement($sentiment);
+    }
+
+    /**
+     * Get Sentimentscale
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getSentiments() {
+        return $this->sentiments;
     }
 }
