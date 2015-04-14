@@ -38,7 +38,7 @@ class Visualization
     /**
      * @var string
      *
-     * @ORM\Column(name="file", type="string", length=128, precision=0, scale=0, nullable=false, unique=false)
+     * @ORM\Column(name="file", type="string", length=255, precision=0, scale=0, nullable=true, unique=false)
      */
     private $file;
 

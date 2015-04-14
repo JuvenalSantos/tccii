@@ -22,65 +22,65 @@ class Tweet
     private $id;
 
     /**
-     * @var string
+     * @var integer
      *
-     * @ORM\Column(name="tweet_id", type="string", length=45, precision=0, scale=0, nullable=true, unique=false)
+     * @ORM\Column(name="tweet_id", type="bigint", precision=0, scale=0, nullable=false, unique=false)
      */
     private $tweetId;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="tweet_text", type="string", length=255, precision=0, scale=0, nullable=true, unique=false)
+     * @ORM\Column(name="tweet_text", type="string", length=255, precision=0, scale=0, nullable=false, unique=false)
      */
     private $tweetText;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="user", type="string", length=128, precision=0, scale=0, nullable=true, unique=false)
+     * @ORM\Column(name="user", type="string", length=128, precision=0, scale=0, nullable=false, unique=false)
      */
     private $user;
 
     /**
      * @var integer
      *
-     * @ORM\Column(name="retweets", type="integer", precision=0, scale=0, nullable=true, unique=false)
+     * @ORM\Column(name="retweets", type="integer", precision=0, scale=0, nullable=false, unique=false)
      */
     private $retweets;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="words", type="text", precision=0, scale=0, nullable=true, unique=false)
+     * @ORM\Column(name="words", type="text", precision=0, scale=0, nullable=false, unique=false)
      */
     private $words;
 
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="creat_at", type="datetime", precision=0, scale=0, nullable=true, unique=false)
+     * @ORM\Column(name="creat_at", type="datetime", precision=0, scale=0, nullable=false, unique=false)
      */
     private $creatAt;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="hashtags", type="text", precision=0, scale=0, nullable=true, unique=false)
+     * @ORM\Column(name="hashtags", type="text", precision=0, scale=0, nullable=false, unique=false)
      */
     private $hashtags;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="subject", type="string", length=255, precision=0, scale=0, nullable=true, unique=false)
+     * @ORM\Column(name="subject", type="string", length=255, precision=0, scale=0, nullable=false, unique=false)
      */
     private $subject;
 
     /**
-     * @var integer
+     * @var boolean
      *
-     * @ORM\Column(name="sentiment", type="smallint", precision=0, scale=0, nullable=true, unique=false)
+     * @ORM\Column(name="sentiment", type="boolean", precision=0, scale=0, nullable=false, unique=false)
      */
     private $sentiment;
 
@@ -109,7 +109,7 @@ class Tweet
     /**
      * Set tweetId
      *
-     * @param string $tweetId
+     * @param integer $tweetId
      * @return Tweet
      */
     public function setTweetId($tweetId)
@@ -122,7 +122,7 @@ class Tweet
     /**
      * Get tweetId
      *
-     * @return string 
+     * @return integer 
      */
     public function getTweetId()
     {
@@ -293,7 +293,7 @@ class Tweet
     /**
      * Set sentiment
      *
-     * @param integer $sentiment
+     * @param boolean $sentiment
      * @return Tweet
      */
     public function setSentiment($sentiment)
@@ -306,7 +306,7 @@ class Tweet
     /**
      * Get sentiment
      *
-     * @return integer 
+     * @return boolean 
      */
     public function getSentiment()
     {
