@@ -25,7 +25,7 @@ class FileUpload {
     public function setFile(UploadedFile $file = null)
     {
         $this->file = $file;
-        $this->fileName = md5(uniqid(rand(), true));
+        $this->fileName = hash('sha256', md5(uniqid(rand(), true)));
         $this->sentimentScale = array();
     }
 
@@ -91,6 +91,7 @@ class FileUpload {
     }
 
     public function getSentimentScale() {
+        sort($this->sentimentScale);
         return $this->sentimentScale;
     }
 }
