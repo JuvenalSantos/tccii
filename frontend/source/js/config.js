@@ -6,7 +6,7 @@ var config = {
             info: "Aviso!",
             warning: "Atenção!"
         },
-        timer: 7000,
+        timer: 10000,
         confirmButtonColor: {
             red: "#DD6B55",
             green: "#39BF5C",

@@ -3,9 +3,10 @@
 namespace Portotech\AppBundle\Controller;
 
 use Doctrine\Common\Util\Debug;
+use Doctrine\DBAL\DBALException;
+use PDOException;
 use Portotech\AppBundle\Entity\FileUpload;
 use Portotech\AppBundle\Form\FileUploadType;
-use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -118,9 +119,10 @@ class VisualizationController extends FOSRestController
 
                 return $this->view(Codes::HTTP_CREATED);
             }
-        } catch (Exception $e) {
+        }
+        catch (DBALException $e) {
             $em->getConnection()->rollback();
-            throw $e;
+            throw $this->createNotFoundException('O arquivo de dados apresenta inconsistências. Certifique-se de que o arquivo de dados atenda aos padrões exigidos e tente novamente.');
         }
 
         return $this->view($form);
