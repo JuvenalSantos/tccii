@@ -110,7 +110,9 @@ class VisualizationController extends FOSRestController
                 $em->persist($entity);
                 $em->flush();
 
-                $em->getRepository("PortotechAppBundle:Tweet")->loadDataFileRaw('/home/usr88/Projects/vint/backend/web/upload/'.$entity->getFile(), $entity->getId());
+                $filePath = $this->container->getParameter('absolute_path_upload').'/'.$entity->getFile();
+
+                $em->getRepository("PortotechAppBundle:Tweet")->loadDataFileRaw($filePath, $entity->getId());
 
                 $em->getConnection()->commit();
 
