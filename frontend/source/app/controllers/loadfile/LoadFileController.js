@@ -24,7 +24,7 @@ define(['../module'], function (controllers) {
         }
 
         function errorHandler(result) {
-            swalError("Ocorreu um erro!\n"+getError(result));
+            swalError(getError(result));
         }
 
         function validForm() {
@@ -72,7 +72,7 @@ define(['../module'], function (controllers) {
                     $scope.$apply();
                 },
                 error: function(result) {
-                    swalError("Ocorreu um erro!\n"+getError({data:result.responseJSON}));
+                    swalError(getError({data:result.responseJSON}));
                 },
                 complete: function() {
                     $('#loader').remove();

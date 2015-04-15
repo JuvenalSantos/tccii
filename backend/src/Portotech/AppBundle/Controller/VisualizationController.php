@@ -5,6 +5,7 @@ namespace Portotech\AppBundle\Controller;
 use Doctrine\Common\Util\Debug;
 use Portotech\AppBundle\Entity\FileUpload;
 use Portotech\AppBundle\Form\FileUploadType;
+use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -99,12 +100,25 @@ class VisualizationController extends FOSRestController
         $form = $this->createCreateForm($entity);
         $form->submit($request->request->all());
 
-        if ($form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($entity);
-            $em->flush();
+        $em = $this->getDoctrine()->getManager();
+        $em->getConnection()->beginTransaction();
 
-            return $this->view(Codes::HTTP_CREATED);
+        try {
+            if ($form->isValid()) {
+
+                $em = $this->getDoctrine()->getManager();
+                $em->persist($entity);
+                $em->flush();
+
+                $em->getRepository("PortotechAppBundle:Tweet")->loadDataFileRaw('/home/usr88/Projects/vint/backend/web/upload/'.$entity->getFile(), $entity->getId());
+
+                $em->getConnection()->commit();
+
+                return $this->view(Codes::HTTP_CREATED);
+            }
+        } catch (Exception $e) {
+            $em->getConnection()->rollback();
+            throw $e;
         }
 
         return $this->view($form);

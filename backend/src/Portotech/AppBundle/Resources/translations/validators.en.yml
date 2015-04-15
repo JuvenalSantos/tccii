@@ -1,6 +1,7 @@
 message:
     name:
-        NotBlank:É obrigatório informar um nome para a importação de dados
+        NotBlank: É obrigatório informar um nome para a importação de dados
+        Unique: O nome informado para importação de dados já está em uso
 
     file:
         NotBlank: O nome do arquivo de dados é obrigatório. Verifique a consistência do seu arquivo de dados

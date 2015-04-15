@@ -7,6 +7,10 @@ Portotech\AppBundle\Entity\FileUpload:
                 mimeTypes: [text/plain]
 
 Portotech\AppBundle\Entity\Visualization:
+    constraints:
+        - Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity:
+            fields: [name]
+            message: "message.name.Unique"
     properties:
         name:
             - NotBlank: {message:"message.name.NotBlank"}
