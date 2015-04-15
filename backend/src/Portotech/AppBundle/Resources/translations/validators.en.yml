@@ -1,0 +1,22 @@
+message:
+    name:
+        NotBlank: É obrigatório informar um nome para a importação de dados
+        Unique: O nome informado para importação de dados já está em uso
+
+    file:
+        NotBlank: O nome do arquivo de dados é obrigatório. Verifique a consistência do seu arquivo de dados
+
+    fileUpload:
+        NotBlank: O arquivo de dados é obrigatório. Verifique o arquivo de dados selecionado
+
+    sentiments:
+        Count: A escala de sentimentos deve possuir no mínimo 2 sentimentos
+
+    sentiment:
+        NotBlank: A escala de sentimentos possui sentimentos inválidos. Informe um sentimento para cada entrada item da escala de sentimentos
+
+    description:
+        NotBlank: A escala de sentimentos possui descrições inválidas. Informe uma descrição para cada entrada item da escala de sentimentos
+
+    visualization:
+        NotBlank: A referência da visualização é necessária para cadastrar a escala de sentimentos. Contate o administrador do sistema.

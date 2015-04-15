@@ -1,28 +1,3 @@
-@media print
-{    
-    .no-print, .no-print *
-    {
-        display: none !important;
-    }
-    body, html {
-    	padding: 0 !important;
-    	margin: 0 !important;
-    }
-    .inner-content {
-    	padding: 0 !important;
-    	margin: 0 !important;
-	}
-	.panel-default > .panel-heading {
-	    border-color: #000 !important;
-	}
-	.panel-default {
-	    border-color: #000 !important;
-	}
-	.table > thead > tr > th, .table > tbody > tr > th {
-		background-color: #e8e8e8 !important;
-	}
-}
-
 @font-face{
 	font-family:'MuseoSlab300';
 	src:url('../fonts/Museo-300.otf') format('opentype');
@@ -38,7 +13,7 @@ html, body {
 body{
 	width: 100%;
 	height: 100%;
-	padding: 120px 15px 20px 0;
+	padding-top: 60px;
 }
 header{
 	padding: 15px 0;
@@ -46,11 +21,7 @@ header{
 
 a, a:hover, a:active, a:focus{outline: 0;}
 .navbar-default .navbar-brand, .navbar-default .navbar-brand:hover{
-/*	font-family: 'Lobster';
-	font-family: 'Righteous', cursive;
-*/	
 	font-family: 'MuseoSlab300';
-	width: 650px !important;
 	text-align: left !important;
 }
 .content{
@@ -59,21 +30,13 @@ a, a:hover, a:active, a:focus{outline: 0;}
 .container.boxcenter{padding-left:0;}
 .navbar{position:fixed;top:0;left:0;width:100%;}
 .navbar.navbar-default {
-    background-color: #00a1d8;
-    background-position: 20px;
-    border: 0 none;
-    border-radius: 0;
-    height: 100px;
-    padding: 10px 0 0 180px;
+	margin: 5px;
     z-index: 500;
 }
 .navbar-default .navbar-brand,
 .navbar-default .navbar-brand:hover{
-	color:#FFF;
 	display: block;
 	text-align: center;
-	width:100%;
-	font-size: 23pt;
 }
 
 /* CLASSES PARA TABELAS */
@@ -562,22 +525,6 @@ span.input-group-addon.glyphicon {
 	cursor: pointer;
 }
 
-/* Compilado com less: 
- * diretório: /source/css
- * cmd: lessc custom-validation.less > custom-validation.css
- */
-/*
-.ng-invalid.ng-dirty {
-	border-color: #a94442;
-	-webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-	box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-}
-.ng-invalid.ng-dirty:focus {
-	border-color: #843534;
-	-webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #ce8483;
-	box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #ce8483;
-}
-*/
 label.control-label.has-error {
 	font-size: 12px;
 	color: #a94442;
@@ -586,4 +533,100 @@ label.control-label.has-error {
 .unstyled {
 	list-style: none;
 	padding-left: 20px !important;
+}
+
+/* New Style */
+a:active, a:selected, a:visited { 
+    border: none;
+    outline: none;
+}
+.btn:focus {
+    outline: none;
+}
+.btn:active:focus {
+    outline: none;
+}
+#slider {
+    margin: 20px;
+    width: 200px;
+}
+.axis text {
+    font: 10px sans-serif;
+}
+
+.axis line,
+.axis path {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+}
+.line {
+    fill: none;
+    stroke: black;
+    stroke-width: 1.5px;
+}
+.sortable-item {
+    margin-left: 30px;
+}
+#sortable {
+    list-style: none;
+}
+.num-sentiment {
+    min-width: 60px;
+}
+.ctrlTime {
+    fill-opacity : 0.7;
+    fill: #c3c3c3;
+    stroke: #fff;
+    stroke-width: 0.5px;
+    cursor: move;
+}
+.hz {
+    cursor: w-resize;
+}
+.btn-group {
+    margin-top: 10px;
+}
+.dropdown-menu {
+    font-size: 12px;
+}
+.rectGradient {
+    pointer-events: none;
+}
+.node {}
+.area {
+    fill: none;
+    stroke: #000;
+    stroke-width: 1.5px;
+    clip-path: url(#clip);
+}
+.area1 {
+    fill: none;
+    stroke: #36A300;
+    stroke-width: 1.5px;
+    clip-path: url(#clip);
+}
+.area0 {
+    fill: none;
+    stroke: #F0ED00;
+    stroke-width: 1.5px;
+    clip-path: url(#clip);
+}
+.area-1 {
+    fill: none;
+    stroke: #F03000;
+    stroke-width: 1.5px;
+    clip-path: url(#clip);
+}            
+.axis path,
+.axis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+}
+
+.brush .extent {
+    stroke: #fff;
+    fill-opacity: .125;
+    shape-rendering: crispEdges;
 }
