@@ -25,7 +25,7 @@ class Tweet
     /**
      * @var integer
      *
-     * @ORM\Column(name="tweet_id", type="bigint", precision=0, scale=0, nullable=false, unique=false)
+     * @ORM\Column(name="tweet_id", type="string", length=20, precision=0, scale=0, nullable=false, unique=false)
      */
     private $tweetId;
 
@@ -114,7 +114,7 @@ class Tweet
     /**
      * Set tweetId
      *
-     * @param integer $tweetId
+     * @param string $tweetId
      * @return Tweet
      */
     public function setTweetId($tweetId)
@@ -127,7 +127,7 @@ class Tweet
     /**
      * Get tweetId
      *
-     * @return integer 
+     * @return string
      */
     public function getTweetId()
     {
