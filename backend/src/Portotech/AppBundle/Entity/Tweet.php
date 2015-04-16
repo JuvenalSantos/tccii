@@ -3,6 +3,7 @@
 namespace Portotech\AppBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation\Groups;
 
 /**
  * Tweet
@@ -24,7 +25,7 @@ class Tweet
     /**
      * @var integer
      *
-     * @ORM\Column(name="tweet_id", type="bigint", precision=0, scale=0, nullable=false, unique=false)
+     * @ORM\Column(name="tweet_id", type="string", length=20, precision=0, scale=0, nullable=false, unique=false)
      */
     private $tweetId;
 
@@ -80,7 +81,7 @@ class Tweet
     /**
      * @var boolean
      *
-     * @ORM\Column(name="sentiment", type="boolean", precision=0, scale=0, nullable=false, unique=false)
+     * @ORM\Column(name="sentiment", type="integer", precision=0, scale=0, nullable=false, unique=false)
      */
     private $sentiment;
 
@@ -91,6 +92,8 @@ class Tweet
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="Visualization_id", referencedColumnName="id", nullable=true)
      * })
+     *
+     * @Groups({"restrict"})
      */
     private $visualization;
 
@@ -111,7 +114,7 @@ class Tweet
     /**
      * Set tweetId
      *
-     * @param integer $tweetId
+     * @param string $tweetId
      * @return Tweet
      */
     public function setTweetId($tweetId)
@@ -124,7 +127,7 @@ class Tweet
     /**
      * Get tweetId
      *
-     * @return integer 
+     * @return string
      */
     public function getTweetId()
     {
@@ -295,7 +298,7 @@ class Tweet
     /**
      * Set sentiment
      *
-     * @param boolean $sentiment
+     * @param integer $sentiment
      * @return Tweet
      */
     public function setSentiment($sentiment)
@@ -308,7 +311,7 @@ class Tweet
     /**
      * Get sentiment
      *
-     * @return boolean 
+     * @return integer
      */
     public function getSentiment()
     {

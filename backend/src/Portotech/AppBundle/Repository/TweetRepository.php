@@ -25,4 +25,10 @@ class TweetRepository extends EntityRepository
         return $stmt->execute();
     }
 
+    public function findTweetsByVisualizationId($visualization) {
+        return $this->getEntityManager()->getRepository("PortotechAppBundle:Tweet")->findBy(array(
+            'visualization' => $visualization
+        ));
+    }
+
 }
