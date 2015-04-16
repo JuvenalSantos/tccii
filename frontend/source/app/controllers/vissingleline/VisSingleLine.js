@@ -1,0 +1,370 @@
+define(['../module'], function (controllers) {
+    'use strict';
+
+    var VisSingleLine = function($scope, $rootScope, $location, VisualizationFactory){
+        $scope.visualization = {};
+        $scope.visualizations = [];
+
+        var canvas = {
+            width : $('body').width(),
+            height : $('body').height() - 60,
+            margin : {
+                x : 30,
+                y : 10
+            },
+            padding : 5,
+            ctrlTime : {
+                height : 50,
+                resize : 5
+            }
+        };
+
+        canvas.center = {
+            x : canvas.width/2,
+            y : canvas.height/2
+        };
+
+        var axis = {
+            y : { 
+                width : 40
+            }
+        };
+
+        var visLine = {
+            width : canvas.width - (2 * canvas.margin.x) - axis.y.width,
+            height : (canvas.height * 0.6) - canvas.margin.y - canvas.ctrlTime.height,
+            coord : {
+                x : canvas.margin.x + axis.y.width,
+                y : (canvas.height * 0.3)
+            },
+            transition : {
+                duration : 200,
+                ease : 'linear'
+            },
+            gradient : {
+                opacity : 0.5
+            },
+            cloudTag : {
+                width : 0,
+                height : (canvas.height * 0.3) - canvas.margin.y - canvas.ctrlTime.height - canvas.padding,
+                fontSize : {
+                    min : 9,
+                    max : 50
+                }
+            }
+        };
+        visLine.cloudTag.width = visLine.width * 0.9;
+        visLine.cloudTag.coord = {
+            x : canvas.center.x,
+            y : (canvas.height * 0.15)
+        };
+        
+        axis.x = {
+            width : visLine.width,
+            height : visLine.height,
+            coord : {
+                x : visLine.coord.x,
+                y : visLine.coord.y + visLine.height
+            }
+        };
+        
+        axis.ctrl = JSON.parse(JSON.stringify(axis.x));
+        axis.ctrl.coord.y += canvas.ctrlTime.height;
+        
+        axis.y = {
+            width : visLine.width,
+            height : visLine.height,
+            coord : {
+                x : visLine.coord.x,
+                y : visLine.coord.y
+            }
+        };
+
+        var svg = d3.select("body").append("svg")
+        .attr("width", canvas.width)
+        .attr("height", canvas.height)
+        .style("background", "#fff")
+        .append("g");
+       
+        // Backgroud do Gráfico
+        var gradient = svg.append("svg:defs")
+        .append("svg:linearGradient")
+        .attr("id", "gradient")
+        .attr("x1", "0%")
+        .attr("y1", "0%")
+        .attr("x2", "0%")
+        .attr("y2", "100%")
+        .attr("spreadMethod", "pad");
+
+        gradient.append("svg:stop")
+        .attr("offset", "0%")
+        .attr("stop-color", "#368F01")
+        .attr("stop-opacity", visLine.gradient.opacity);
+
+        gradient.append("svg:stop")
+        .attr("offset", "50%")
+        .attr("stop-color", "#ECEC00")
+        .attr("stop-opacity", visLine.gradient.opacity);
+
+        gradient.append("svg:stop")
+        .attr("offset", "100%")
+        .attr("stop-color", "#FA3301")
+        .attr("stop-opacity", visLine.gradient.opacity);              
+       
+        $scope.visualization.cloudTags = [];
+        $scope.visualization.points = [];
+
+       $scope.visNewLine = function() {
+            var margin = {top: 10 + visLine.cloudTag.height + 40, right: 10, bottom: 100, left: 40},
+            margin2 = {top: (550) - 70, right: 10, bottom: 20, left: 40},
+            width = canvas.width - margin.left - margin.right - 10,
+            height = 550 - margin.top - margin.bottom,
+            height2 = 550 - margin2.top - margin2.bottom;
+            
+            var bisect = d3.bisector(function(d) { return d.creat_at; }).right;
+
+            /*
+            * Define as escalas de tempos para utilização no eixo X do gráfico principal e no brush
+            */
+            var x = d3.time.scale().range([0, width]),
+            x2 = d3.time.scale().range([0, width]);
+
+            /*
+            * Define as escalas lineares para utilização no eixo Y do gráfico principal e no brush
+            */
+            var y = d3.scale.linear().range([height, 0]),
+            y2 = d3.scale.linear().range([height2, 0]);
+
+            /*
+            * Define as axis X do gráfico principal e no brush
+            * Nestas axis serão exibidas a data/hora do tweet
+            */
+            var 
+            xAxis = d3.svg.axis().scale(x).orient("bottom"),
+            xAxis2 = d3.svg.axis().scale(x2).orient("bottom");
+
+            /*
+            * Define a axis Y do gráfico principal
+            * Nesta axis será exibido a escala de sentimento, por exemplo, [Positivo, Neutro, Negativo]
+            */
+            var yAxis = d3.svg.axis().scale(y).orient("left");
+
+            /*
+            * Define a escala utilizada para o tamanho da fonte do texto da Cloud Tag
+            * O domínio da escala é definido com base no menor e o maior valor de "size" contido na Cloud Tag
+            * O range da escala é definido manualmente e os valores padrão são [9, 50]
+            */
+            var scaleFontSize = d3.scale.linear()
+            .domain(d3.extent($scope.visualization.cloudTags, function(d){ return d.size; }))
+            .rangeRound([visLine.cloudTag.fontSize.min, visLine.cloudTag.fontSize.max])
+            ;
+
+            /*
+            * Define a escala da palheta de cores a ser utilizada na Cloud Tag
+            * Consulte D3JS Category20 para mais detalhes
+            */
+            var scaleFontColor = d3.scale.category20();
+            
+            /*
+            * Cria a Cloud Tag
+            */
+            d3.layout.cloud()
+            .size([visLine.cloudTag.width, visLine.cloudTag.height])
+            .words($scope.visualization.cloudTags)
+            .rotate(0)
+            .fontSize(function(d) { return scaleFontSize(d.size); })
+            .on("end", drawTags)
+            .start();
+
+            /*
+            * Renderiza o gráfico principal (degrade)
+            */
+            svg.append("svg:rect")
+            .attr("width", width)
+            .attr("height", height)
+            .attr("class", "rectGradient")
+            .style("fill", "url(#gradient)")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+            /*
+            * Define o controle da Timeline
+            */
+            var brush = d3.svg.brush()
+            .x(x2)
+            .on("brush", brushing)
+            .on("brushend", brushedend);
+
+            /*
+            * Define a linha para interpolação do gráfico principal
+            */
+            var area = d3.svg.line()
+            .interpolate("monotone")
+            .defined(function(d) { return d.y !== null; })
+            .x(function(d) { return x(d.creat_at); })
+            .y(function(d) { return y(d.y); });
+
+            /*
+            * Define a linha para interpolação do gráfico de controle da Timeline
+            */
+            var area2 = d3.svg.line()
+            .interpolate("monotone")
+            .defined(function(d) { return d.y !== null; })
+            .x(function(d) { return x2(d.creat_at); })
+            .y(function(d) { return y2(d.y); });
+
+            /*
+            * Cria o limite de renderização dos pontos do gráfico principal
+            */
+            svg.append("defs").append("clipPath")
+            .attr("id", "clip")
+            .append("rect")
+            .attr("width", width)
+            .attr("height", height);
+
+            /*
+            * Renderiza os elementos referentes ao gráfico principal
+            */
+            var focus = svg.append("g")
+            .attr("class", "focus")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+            /*
+            * Renderiza os elementos referentes ao gráfico de controle da Timeline
+            */
+            var context = svg.append("g")
+            .attr("class", "context")
+            .attr("transform", "translate(" + margin2.left + "," + margin2.top + ")");
+
+/*
+* Lista com os pontos a serem renderizados nos gráficos
+*/
+var pdata = $scope.visualization.points;
+
+            /*
+            * Define os dominios para as escalas x, x2 de acordo com as datas dos tweets
+            */
+            x.domain(d3.extent(pdata.map(function(d) { return d.creat_at; })));
+            x2.domain(x.domain());
+
+            /*
+            * Define os dominios para a escala y e y2 de acordo como intervalo [-1,1]
+            */
+            y.domain([-1, 1]);
+            y2.domain(y.domain());
+
+            /*
+            * Renderiza a linha do gráfico principal
+            */
+            focus.append("path")
+            .datum(pdata)
+            .attr("class", "area")
+            .attr("d", area);
+
+            /*
+            * Rendereiza a axis X (time) do gráfico principal
+            */
+            focus.append("g")
+            .attr("class", "x axis")
+            .attr("transform", "translate(0," + height + ")")
+            .call(xAxis);
+
+            /*
+            * Inicializa o gráfico principal e o brush de controle da Timeline com o intervalo de datas completo
+            */
+            brush.extent(x2.domain());
+
+/*
+* Lista contendo as descrições da escala de sentimentos 
+*/
+var sentimentos = ['Ótimo', 'Muito bom', 'Bom', 'Médio', 'Ruim', 'Péssimo'];
+            
+            /*
+            * Define uma escala ordinal de sentimentos para ser utilizada no gráfico principal
+            */           
+            var labelScale = d3.scale.ordinal()
+            .domain(sentimentos)
+            .rangePoints([0, height]);
+            
+            /*
+            * Define a axis (Y) com a representação textual da escala de sentimentos
+            */              
+            var myAxis = d3.svg.axis()
+            .scale(labelScale)
+            .orient("left");
+
+            /*
+            * Renderiza a axis de sentimento textual (Y)
+            */   
+            focus.append("g")
+            .attr("class", "y axis")
+            .call(myAxis);
+
+            /*
+            * Renderiza a linha do gráfico de controle
+            */
+            context.append("path")
+            .datum(pdata)
+            .attr("class", "area")
+            .attr("d", area2);
+
+            /*
+            * Rendereiza a axis X (time) do gráfico de controle
+            */
+            context.append("g")
+            .attr("class", "x axis")
+            .attr("transform", "translate(0," + height2 + ")")
+            .call(xAxis2);
+
+            /*
+            * Renderiza o brush do gráfico principal
+            */
+            context.append("g")
+            .attr("class", "x brush")
+            .call(brush)
+            .selectAll("rect")
+            .attr("y", -6)
+            .attr("height", height2 + 7);
+
+            /*
+            * Função callback executada enquanto o brush é manipulado (movimentado)
+            * Esta função é responsável por alterar o estado da visualização do gráfico principal
+            */
+            function brushing() {
+                x.domain(brush.empty() ? x2.domain() : brush.extent());
+                focus.select(".area").attr("d", area);
+                focus.select(".x.axis").call(xAxis);
+            }
+
+            /*
+            * Função callback executada quando finalizada a manipulação do brush
+            */
+            function brushedend(){
+                var bext = brush.extent();
+                console.log(bisect(pdata, bext[0]) +' '+bisect(pdata, bext[1]));
+            } 
+            
+            /*
+            * Função callback responsável por renderizar as tags da Cloud Tag
+            */
+            function drawTags(words) {
+                svg.append("g")
+                .attr("transform", "translate("+ visLine.cloudTag.coord.x +", "+ visLine.cloudTag.coord.y +")")
+                .selectAll("text")
+                .data(words)
+                .enter()
+                    .append("text")
+                    .style("font-size", function(d) { return d.size + "px"; })
+                    .style("fill", function(d, i) { return scaleFontColor(i); })
+                    .attr("transform", function(d) {
+                        return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
+                    })
+                    .text(function(d) { return d.word; });
+            }
+
+        }
+        $scope.visNewLine();
+
+    }
+
+    controllers.controller('VisSingleLine', ['$scope', '$rootScope', '$location', 'VisualizationFactory', VisSingleLine]);
+});
