@@ -1,4 +1,5 @@
 define([
 	'./VisualizationFactory',
+	'./TweetFactory',
 ], function () {
 });

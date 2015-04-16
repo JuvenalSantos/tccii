@@ -6,6 +6,7 @@ use Doctrine\Common\Util\Debug;
 use Doctrine\DBAL\DBALException;
 use PDOException;
 use Portotech\AppBundle\Entity\FileUpload;
+use Portotech\AppBundle\Entity\VisSingleLine;
 use Portotech\AppBundle\Form\FileUploadType;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
@@ -152,19 +153,23 @@ class VisualizationController extends FOSRestController
      *         200="Returned when successful",
      *     }
      * )
-     * @Rest\Get("{id}", name="visualization_show")
+     * @Rest\Get("/{id}", name="visualization_show")
      */
     public function showAction($id)
     {
         $em = $this->getDoctrine()->getManager();
 
-        $entity = $em->getRepository('PortotechAppBundle:Visualization')->find($id);
+        $visualization = $em->getRepository('PortotechAppBundle:Visualization')->find($id);
 
-        if (!$entity) {
+        if (!$visualization) {
             throw $this->createNotFoundException('Unable to find Visualization entity.');
         }
 
-        return $this->view($entity);
+        $visSingleLine = new VisSingleLine($visualization);
+        $lines = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsEachThirtyMinutesByVisualization($id);
+        $visSingleLine->setLines($lines);
+
+        return $this->view($visSingleLine);
     }
 
     /**

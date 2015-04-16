@@ -5,7 +5,7 @@ define(['app'], function (app) {
 		$routeProvider
                   .when('/Home', {templateUrl: 'app/view/home/Home.html',controller: 'HomeController'})
                   .when('/LoadFile', {templateUrl: 'app/view/loadfile/LoadFile.html',controller: 'LoadFileController'})
-                  .when('/VisSingleLine', {templateUrl: 'app/view/vissingleline/VisSingleLine.html',controller: 'VisSingleLine'})
+                  .when('/VisSingleLine/:id', {templateUrl: 'app/view/vissingleline/VisSingleLine.html',controller: 'VisSingleLine'})
                   /* USER */
                   .when('/User', {templateUrl: 'app/view/user/User.html',controller: 'UserController'})
                   .when('/User/add', {templateUrl: 'app/view/user/UserAdd.html',controller: 'UserAddController'})

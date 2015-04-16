@@ -168,4 +168,5 @@ class Visualization
     public function getSentiments() {
         return $this->sentiments;
     }
+
 }
