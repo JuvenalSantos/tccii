@@ -166,8 +166,13 @@ class VisualizationController extends FOSRestController
         }
 
         $visSingleLine = new VisSingleLine($visualization);
+
         $lines = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsEachThirtyMinutesByVisualization($id);
+        $cloudTags = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsTagsByVisualization($id);
+
         $visSingleLine->setLines($lines);
+        $visSingleLine->setCloudTags($cloudTags);
+
 
         return $this->view($visSingleLine);
     }

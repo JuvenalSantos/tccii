@@ -15,9 +15,16 @@ class VisSingleLine {
      */
     private $lines;
 
+    /**
+     * @var array
+     */
+    private $cloudTags;
+
     function __construct(Visualization $visualization)
     {
         $this->visualization = $visualization;
+        $this->lines = array();
+        $this->cloudTags = array();
     }
 
 
@@ -59,4 +66,26 @@ class VisSingleLine {
         return $this->lines;
     }
 
+    /**
+     * @return array
+     */
+    public function getCloudTags()
+    {
+        return $this->cloudTags;
+    }
+
+    /**
+     * @param array $cloudTags
+     */
+    public function setCloudTags($cloudTags)
+    {
+        foreach($cloudTags as $tag) {
+            $this->cloudTags[] = array(
+                'word' => utf8_encode($tag['words']),
+                'size' => (int)$tag['total'],
+                'hash' => hash('crc32', $tag['words'], false)
+            );
+        }
+
+    }
 }

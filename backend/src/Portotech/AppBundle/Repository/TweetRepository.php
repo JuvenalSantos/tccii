@@ -31,6 +31,21 @@ class TweetRepository extends EntityRepository
         ));
     }
 
+    public function findTweetsTagsByVisualization($visualization){
+        $db = $this->getEntityManager()->getConnection();
+        $sql = "SELECT words, COUNT(words) AS total
+                FROM Tweet
+                WHERE Visualization_id = :visualization AND words IS NOT NULL
+                GROUP BY words
+                ORDER BY total";
+        $stmt = $db->prepare($sql);
+        $stmt->bindParam(':visualization', $visualization, PDO::PARAM_INT);
+
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+
+
     public function findTweetsEachFiveMinutesByVisualization($visualization){
         $db = $this->getEntityManager()->getConnection();
         $sql = "SELECT dateByFiveMinutes(creat_at) AS creat_at, quarterByFiveMinutes(creat_at) AS quarter, AVG(sentiment) AS media
@@ -86,4 +101,6 @@ class TweetRepository extends EntityRepository
         $stmt->execute();
         return $stmt->fetchAll();
     }
+
+
 }
