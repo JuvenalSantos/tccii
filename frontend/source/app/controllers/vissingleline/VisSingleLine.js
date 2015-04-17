@@ -127,12 +127,12 @@ define(['../module'], function (controllers) {
                 d.creat_at = new Date(d['creat_at']);
             });
             $scope.visualization.sentiments = $scope.visualization.sentiments.sort( function(a,b){ return d3.descending(a.sentiment, b.sentiment);  });
-            $scope.cloudTags = [];
+            $scope.cloudTags = data.cloud_tags;
 
             initVisSingleLine();
         }
 
-        var focus, context, area, area2, xAxis, xAxis2, x, x2, y, y2, yAxis, brush;
+        var focus, context, area, area2, xAxis, xAxis2, x, x2, y, y2, yAxis, brush, scaleFontColor;
 
         $scope.clearAllSVG = function() {
             //d3.selectAll("svg > *").remove();
@@ -192,7 +192,7 @@ define(['../module'], function (controllers) {
             * Define a escala da palheta de cores a ser utilizada na Cloud Tag
             * Consulte D3JS Category20 para mais detalhes
             */
-            var scaleFontColor = d3.scale.category20();
+            scaleFontColor = d3.scale.category20();
             
             /*
             * Cria a Cloud Tag

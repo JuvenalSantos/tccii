@@ -81,7 +81,7 @@ class VisSingleLine {
     {
         foreach($cloudTags as $tag) {
             $this->cloudTags[] = array(
-                'word' => utf8_encode($tag['words']),
+                'word' => ($tag['words']),
                 'size' => (int)$tag['total'],
                 'hash' => hash('crc32', $tag['words'], false)
             );
