@@ -146,24 +146,18 @@ define(['../module'], function (controllers) {
             renderContext();
         }
 
-        var margin = {top: 10 + visLine.cloudTag.height + 40, right: 10, bottom: 100, left: 40},
-        margin2 = {top: (550) - 70, right: 10, bottom: 20, left: 40},
-        width = canvas.width - margin.left - margin.right - 10,
-        height = 550 - margin.top - margin.bottom,
-        height2 = 550 - margin2.top - margin2.bottom;
-
        function initVisSingleLine() {
             /*
             * Define as escalas de tempos para utilização no eixo X do gráfico principal e no brush
             */
-            x = d3.time.scale().range([0, axis.x.width]),
-            x2 = d3.time.scale().range([0, axis.x.width]);
+            x = d3.time.scale().range([0, visLine.width]),
+            x2 = d3.time.scale().range([0, visLine.width]);
 
             /*
             * Define as escalas lineares para utilização no eixo Y do gráfico principal e no brush
             */
-            y = d3.scale.linear().range([axis.y.height, 0]),
-            y2 = d3.scale.linear().range([height2, 0]);
+            y = d3.scale.linear().range([visLine.height, 0]),
+            y2 = d3.scale.linear().range([canvas.ctrlTime.height, 0]);
 
             /*
             * Define as axis X do gráfico principal e no brush
