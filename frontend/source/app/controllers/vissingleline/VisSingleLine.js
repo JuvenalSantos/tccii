@@ -128,8 +128,7 @@ define(['../module'], function (controllers) {
                 d.creat_at = new Date(d['creat_at']);
             });
             $scope.cloudTags = [];
-            //$scope.visualization.points = [];
-            //console.log($scope.lines);
+
             initVisSingleLine();
         }
 
@@ -187,8 +186,7 @@ define(['../module'], function (controllers) {
             */
             var scaleFontSize = d3.scale.linear()
             .domain(d3.extent($scope.cloudTags, function(d){ return d.size; }))
-            .rangeRound([visLine.cloudTag.fontSize.min, visLine.cloudTag.fontSize.max])
-            ;
+            .rangeRound([visLine.cloudTag.fontSize.min, visLine.cloudTag.fontSize.max]);
 
             /*
             * Define a escala da palheta de cores a ser utilizada na Cloud Tag
@@ -212,15 +210,14 @@ define(['../module'], function (controllers) {
             */
             brush = d3.svg.brush()
             .x(x2)
-            .on("brush", brushing)
-            .on("brushend", brushedend)
-            ;
+            //.on("brush", brushing)
+            .on("brushend", brushedend);
 
             /*
             * Define a linha para interpolação do gráfico principal
             */
             area = d3.svg.line()
-            .interpolate("monotone")
+            .interpolate("basic")
             .defined(function(d) { return d.y !== null; })
             .x(function(d) { return x(d.creat_at); })
             .y(function(d) { return y(d.y); });
@@ -229,7 +226,7 @@ define(['../module'], function (controllers) {
             * Define a linha para interpolação do gráfico de controle da Timeline
             */
             area2 = d3.svg.line()
-            .interpolate("monotone")
+            .interpolate("basic")
             .defined(function(d) { return d.y !== null; })
             .x(function(d) { return x2(d.creat_at); })
             .y(function(d) { return y2(d.y); });
@@ -247,18 +244,15 @@ define(['../module'], function (controllers) {
             /*
             * Cria o limite de renderização dos pontos do gráfico principal
             */
-            svg.append("defs").append("clipPath")
+            svg.append("defs").append("svg:clipPath")
             .attr("id", "clip")
-            .append("rect")
+            .append("svg:rect")
             .attr("width", width)
             .attr("height", height);
 
             renderFocus();
-
             renderFocusSentimentScale();
-
             renderContext();
-
         }
 
         function renderFocus() {
@@ -267,6 +261,7 @@ define(['../module'], function (controllers) {
             */
             focus = svg.append("g")
             .attr("class", "focus")
+            .attr("clip-path", "url(#clip)")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
             /*
@@ -353,7 +348,7 @@ define(['../module'], function (controllers) {
             /*
             * Inicializa o gráfico principal e o brush de controle da Timeline com o intervalo de datas completo
             */
-            brush.extent(x2.domain());
+            //brush.extent(x2.domain());
 
             /*
             * Renderiza o brush do gráfico principal
@@ -371,15 +366,17 @@ define(['../module'], function (controllers) {
         * Esta função é responsável por alterar o estado da visualização do gráfico principal
         */
         function brushing() {
-            x.domain(brush.empty() ? x2.domain() : brush.extent());
-            focus.select(".area").attr("d", area);
-            focus.select(".x.axis").call(xAxis);
+
         }
 
         /*
         * Função callback executada quando finalizada a manipulação do brush
+        * Para efeitos de performance, o gráfico somente é renderizado após concluida a interação do usuário com o controle da timeline
         */
         function brushedend(){
+            x.domain(brush.empty() ? x2.domain() : brush.extent());
+            focus.select(".area").attr("d", area);
+            focus.select(".x.axis").call(xAxis);
         } 
         
         /*
