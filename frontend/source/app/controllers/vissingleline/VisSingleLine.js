@@ -2,6 +2,10 @@ define(['../module'], function (controllers) {
     'use strict';
 
     var VisSingleLine = function($scope, $rootScope, $routeParams, $location, VisualizationFactory, TweetFactory){
+        $scope.form = {};
+
+        //Parametro padrão de agregação para média dos tweets (30 minutos)
+        $scope.form.aggregation = "30m";
         $scope.visualization = {};
         $scope.cloudTags = [];
 
@@ -10,23 +14,8 @@ define(['../module'], function (controllers) {
         */
         $scope.lines = [];
 
-        var canvas = {
-            width : $('body').width(),
-            height : $('body').height() - 60,
-            margin : {
-                x : 30,
-                y : 10
-            },
-            padding : 5,
-            ctrlTime : {
-                height : 50
-            }
-        };
-
-        canvas.center = {
-            x : canvas.width/2,
-            y : canvas.height/2
-        };
+        var focus, context, area, area2, xAxis, xAxis2, x, x2, y, y2, yAxis, brush, scaleFontColor;
+        
 
         var axis = {
             y : { 
@@ -84,6 +73,7 @@ define(['../module'], function (controllers) {
             }
         };
 
+        
         var svg = d3.select("body").append("svg")
         .attr("width", canvas.width)
         .attr("height", canvas.height)
@@ -113,14 +103,28 @@ define(['../module'], function (controllers) {
         gradient.append("svg:stop")
         .attr("offset", "100%")
         .attr("stop-color", "#FA3301")
-        .attr("stop-opacity", visLine.gradient.opacity);              
+        .attr("stop-opacity", visLine.gradient.opacity);   
+
+        var customTimeFormat = d3.time.format.multi([
+            //["%M", function(d) { return d.getMilliseconds(); }],
+            ["%M", function(d) { return d.getSeconds() }],
+            ["%M", function(d) { return d.getMinutes(); }],
+            ["%H:%M", function(d) { return d.getHours(); }],
+            ["%a %d", function(d) { return d.getDay() && d.getDate() != 1; }],
+            ["%b %d", function(d) { return d.getDate() != 1; }],
+            ["%B", function(d) { return d.getMonth(); }],
+            ["%Y", function() { return true; }]
+        ]);         
        
         function init() {
-            VisualizationFactory.get({id:$routeParams.id}, successHandler);
+            VisualizationFactory.getFullVisualization({id:$routeParams.id, aggregation: $scope.form.aggregation}, successHandlerFullVisualization);
         }
         init();
 
-        function successHandler(data) {
+        /*
+        * Função callback responsável por tratar a resposta da requisição de inicialização da visualização completa
+        */
+        function successHandlerFullVisualization(data) {
             $scope.visualization = data.visualization;
             $scope.lines = data.lines;
             $scope.lines.forEach(function(d) {
@@ -132,11 +136,47 @@ define(['../module'], function (controllers) {
             initVisSingleLine();
         }
 
-        var focus, context, area, area2, xAxis, xAxis2, x, x2, y, y2, yAxis, brush, scaleFontColor;
+        /*
+        * Função callback responsável por tratar a resposta da requisição de novos dados para a visualização (lines)
+        */
+        $scope.changeAggregation = function() {
+            switch($scope.form.aggregation) {
+                case '5m':
+                    TweetFactory.getVisSingleLine({id:$routeParams.id, aggregation: $scope.form.aggregation}, successHandlerChangeAggregation);
+                    break;
 
-        $scope.clearAllSVG = function() {
-            //d3.selectAll("svg > *").remove();
-    
+                case '10m':
+                    TweetFactory.getVisSingleLine({id:$routeParams.id, aggregation: $scope.form.aggregation}, successHandlerChangeAggregation);
+                    break;
+
+                case '15m':
+                    TweetFactory.getVisSingleLine({id:$routeParams.id, aggregation: $scope.form.aggregation}, successHandlerChangeAggregation);
+                    break;
+
+                case '30m':
+                    TweetFactory.getVisSingleLine({id:$routeParams.id, aggregation: $scope.form.aggregation}, successHandlerChangeAggregation);
+                    break;
+
+                default:
+                    swalInfo('O parâmetro de agregação é inválido.');
+            }
+        }
+
+        /*
+        * Função callback responsável por tratar a resposta da requisição de novos dados para a visualização
+        */
+        function successHandlerChangeAggregation(data) {
+            $scope.lines = data;
+            $scope.lines.forEach(function(d) {
+                d.creat_at = new Date(d['creat_at']);
+            });
+            $scope.renderUpdate();
+        }
+
+        /*
+        * Função responsável por renderizar o gráfico principal a cada atualização de dados
+        */
+        $scope.renderUpdate = function() {
            focus.select(".area").remove();
            focus.select(".x.axis").remove();
            context.select(".area").remove();
@@ -145,8 +185,12 @@ define(['../module'], function (controllers) {
 
             renderFocus();
             renderContext();
+            brushedend();
         }
 
+        /*
+        * Função responsável por inicializar os elementos necessários para renderização da visualização
+        */
        function initVisSingleLine() {
             /*
             * Define as escalas de tempos para utilização no eixo X do gráfico principal e no brush
@@ -170,8 +214,8 @@ define(['../module'], function (controllers) {
             * Define as axis X do gráfico principal e no brush
             * Nestas axis serão exibidas a data/hora do tweet
             */
-            xAxis = d3.svg.axis().scale(x).orient("bottom"),
-            xAxis2 = d3.svg.axis().scale(x2).orient("bottom");
+            xAxis = d3.svg.axis().scale(x).orient("bottom").tickFormat(customTimeFormat),
+            xAxis2 = d3.svg.axis().scale(x2).orient("bottom").tickFormat(customTimeFormat);
 
             /*
             * Define a axis Y do gráfico principal
@@ -255,6 +299,9 @@ define(['../module'], function (controllers) {
             renderContext();
         }
 
+        /*
+        * Função responsável por renderizar o gráfico de principal
+        */
         function renderFocus() {
             /*
             * Renderiza os elementos referentes ao gráfico principal
@@ -287,6 +334,9 @@ define(['../module'], function (controllers) {
             .call(xAxis);
         }
 
+        /*
+        * Função responsável por renderizar a escalade sentimento textual (Axis Y)
+        */
         function renderFocusSentimentScale() {
             /*
             * Lista contendo as descrições da escala de sentimentos 
@@ -317,6 +367,9 @@ define(['../module'], function (controllers) {
             .call(sentimentAxis);
         }
 
+        /*
+        * Função responsável por renderizar o gráfico de controle
+        */
         function renderContext() {
             /*
             * Renderiza os elementos referentes ao gráfico de controle da Timeline
@@ -354,7 +407,10 @@ define(['../module'], function (controllers) {
             .call(brush)
             .selectAll("rect")
             .attr("y", -canvas.padding)
-            .attr("height", canvas.ctrlTime.height + canvas.padding - 1);
+            .attr("height", canvas.ctrlTime.height + canvas.padding - 1)
+            .on("dblclick", function(){ console.log("click"); })
+            .on('contextmenu',function (d,i){ d3.event.preventDefault(); console.log("click"); })
+            ;
         }
 
         /*
@@ -373,7 +429,7 @@ define(['../module'], function (controllers) {
             x.domain(brush.empty() ? x2.domain() : brush.extent());
             focus.select(".area").attr("d", area);
             focus.select(".x.axis").call(xAxis);
-        } 
+        }
         
         /*
         * Função callback responsável por renderizar as tags da Cloud Tag
@@ -391,6 +447,14 @@ define(['../module'], function (controllers) {
                     return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
                 })
                 .text(function(d) { return d.word; });
+        }
+
+        /*
+        * Função responsável por resetar a seleção do gráfico de controle e atualizar o gráfico principal
+        */
+        $scope.clearBrushSelection = function() {
+            d3.selectAll("g.brush").call(brush.clear());
+            brushedend();
         }
 
     }

@@ -6,10 +6,10 @@ define(['./module'], function (factories) {
 			update : {
 				method : "PUT"
 			},
-			getTweetsEachFiveMinutes: {
+			getVisSingleLine: {
 				method : "GET",
-				params: {id: '@id'},
-				url: baseURL + "tweet/visualization/:id/",
+				params: {id: '@id', aggregation: '@aggregation'},
+				url: baseURL + "tweet/vissingleline/:id/:aggregation",
 				isArray: true
 			}
 		});
