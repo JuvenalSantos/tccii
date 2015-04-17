@@ -41,7 +41,7 @@ define(['../module'], function (controllers) {
                 width : 0,
                 height : (canvas.height * 0.3) - canvas.margin.y - canvas.ctrlTime.height - canvas.padding,
                 fontSize : {
-                    min : 9,
+                    min : 11,
                     max : 50
                 }
             }
@@ -107,8 +107,8 @@ define(['../module'], function (controllers) {
 
         var customTimeFormat = d3.time.format.multi([
             //["%M", function(d) { return d.getMilliseconds(); }],
-            ["%M", function(d) { return d.getSeconds() }],
-            ["%M", function(d) { return d.getMinutes(); }],
+            ["%H:%M:%S", function(d) { return d.getSeconds() }],
+            ["%H:%M", function(d) { return d.getMinutes(); }],
             ["%H:%M", function(d) { return d.getHours(); }],
             ["%a %d", function(d) { return d.getDay() && d.getDate() != 1; }],
             ["%b %d", function(d) { return d.getDate() != 1; }],
@@ -178,7 +178,7 @@ define(['../module'], function (controllers) {
         */
         $scope.renderUpdate = function() {
            focus.select(".area").remove();
-           focus.select(".x.axis").remove();
+           svg.select(".x.axis").remove();
            context.select(".area").remove();
            context.select(".x.axis").remove();
            context.select(".x.brush").remove();
@@ -236,17 +236,23 @@ define(['../module'], function (controllers) {
             * Define a escala da palheta de cores a ser utilizada na Cloud Tag
             * Consulte D3JS Category20 para mais detalhes
             */
-            scaleFontColor = d3.scale.category20();
+            scaleFontColor = d3.scale.linear()
+            .domain(scaleFontSize.domain())
+            //.rangeRound(["#484848", "#616161", "#7B7B7B", "#959595", "#AFAFAF"])
+            .rangeRound(["#AFAFAF", "#313131"])
+            .interpolate(d3.interpolateHsl)
+            ; 
             
             /*
             * Cria a Cloud Tag
             */
             d3.layout.cloud()
             .size([visLine.cloudTag.width, visLine.cloudTag.height])
-            .words($scope.cloudTags)
-            .rotate(0)
             .fontSize(function(d) { return scaleFontSize(d.size); })
+            .rotate(0)
+            .padding(1)
             .on("end", drawTags)
+            .words($scope.cloudTags)
             .start();
 
             /*
@@ -328,9 +334,9 @@ define(['../module'], function (controllers) {
             /*
             * Rendereiza a axis X (time) do gráfico principal
             */
-            focus.append("g")
+            svg.append("g")
             .attr("class", "x axis")
-            .attr("transform", "translate(0," + visLine.height + ")")
+            .attr("transform", "translate("+ visLine.coord.x +"," + (visLine.coord.y + visLine.height) + ")")
             .call(xAxis);
         }
 
@@ -428,7 +434,7 @@ define(['../module'], function (controllers) {
         function brushedend(){
             x.domain(brush.empty() ? x2.domain() : brush.extent());
             focus.select(".area").attr("d", area);
-            focus.select(".x.axis").call(xAxis);
+            svg.select(".x.axis").call(xAxis);
         }
         
         /*
@@ -442,6 +448,7 @@ define(['../module'], function (controllers) {
             .enter()
                 .append("text")
                 .style("font-size", function(d) { return d.size + "px"; })
+                .style("opacity", function(d) { return 1 - (0.01 * d.size); })
                 .style("fill", function(d, i) { return scaleFontColor(i); })
                 .attr("transform", function(d) {
                     return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";

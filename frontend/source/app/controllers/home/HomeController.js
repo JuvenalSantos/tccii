@@ -14,7 +14,6 @@ define(['../module'], function (controllers) {
     		$scope.visulalizations = visualizations;
     	}
 
-    	init();
     }
 
     controllers.controller('HomeController', ['$scope', '$rootScope', '$location', 'VisualizationFactory', HomeController]);
