@@ -126,6 +126,7 @@ define(['../module'], function (controllers) {
             $scope.lines.forEach(function(d) {
                 d.creat_at = new Date(d['creat_at']);
             });
+            $scope.visualization.sentiments = $scope.visualization.sentiments.sort( function(a,b){ return d3.descending(a.sentiment, b.sentiment);  });
             $scope.cloudTags = [];
 
             initVisSingleLine();
@@ -158,6 +159,12 @@ define(['../module'], function (controllers) {
             */
             y = d3.scale.linear().range([visLine.height, 0]),
             y2 = d3.scale.linear().range([canvas.ctrlTime.height, 0]);
+
+            /*
+            * Define os dominios para a escala y e y2 de acordo como intervalo [-1,1]
+            */
+            y.domain(d3.extent($scope.visualization.sentiments, function(d){ return d.sentiment; }));
+            y2.domain(y.domain());
 
             /*
             * Define as axis X do gráfico principal e no brush
@@ -241,7 +248,7 @@ define(['../module'], function (controllers) {
             .attr("id", "clip")
             .append("svg:rect")
             .attr("width", visLine.width)
-            .attr("height", (visLine.height+20));
+            .attr("height", (visLine.height + 20));
 
             renderFocus();
             renderFocusSentimentScale();
@@ -264,12 +271,6 @@ define(['../module'], function (controllers) {
             x2.domain(x.domain());
 
             /*
-            * Define os dominios para a escala y e y2 de acordo como intervalo [-1,1]
-            */
-            y.domain([-1, 1]);
-            y2.domain(y.domain());
-
-            /*
             * Renderiza a linha do gráfico principal
             */
             focus.append("path")
@@ -290,14 +291,15 @@ define(['../module'], function (controllers) {
             /*
             * Lista contendo as descrições da escala de sentimentos 
             */
-            var sentimentos = $scope.visualization.sentiments; //['Ótimo', 'Muito bom', 'Bom', 'Médio', 'Ruim', 'Péssimo'];
+            //var sentimentos = $scope.visualization.sentiments; //['Ótimo', 'Muito bom', 'Bom', 'Médio', 'Ruim', 'Péssimo'];
 
             /*
             * Define uma escala ordinal de sentimentos para ser utilizada no gráfico principal
             */           
             var labelScale = d3.scale.ordinal()
-            .domain(sentimentos.map(function(d){ return d.description; }))
-            .rangePoints([0, visLine.height]);
+            .domain($scope.visualization.sentiments.map(function(d){ return d.description; }))
+            .rangePoints([0, visLine.height])
+            ;
             
             /*
             * Define a axis (Y) com a representação textual da escala de sentimentos
