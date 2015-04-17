@@ -5,8 +5,10 @@ define(['../module'], function (controllers) {
     	$scope.visulalizations = [];
 
     	function init() {
+            d3.selectAll("svg").remove();
     		VisualizationFactory.query({}, successHandler);
     	}
+        init();
 
     	function successHandler(visualizations) {
     		$scope.visulalizations = visualizations;

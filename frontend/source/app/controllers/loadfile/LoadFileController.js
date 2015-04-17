@@ -7,6 +7,11 @@ define(['../module'], function (controllers) {
         $scope.attachment = new FormData();
 
 
+        function init() {
+            d3.selectAll("svg").remove();
+        }
+        init();
+
         $scope.openFileBrowser = function () {
             $('#import').trigger('click');
         }

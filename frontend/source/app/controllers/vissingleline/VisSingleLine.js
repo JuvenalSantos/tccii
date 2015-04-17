@@ -73,7 +73,7 @@ define(['../module'], function (controllers) {
             }
         };
 
-        
+        d3.selectAll("svg").remove();
         var svg = d3.select("body").append("svg")
         .attr("width", canvas.width)
         .attr("height", canvas.height)
