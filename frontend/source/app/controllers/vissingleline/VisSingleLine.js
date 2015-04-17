@@ -19,8 +19,7 @@ define(['../module'], function (controllers) {
             },
             padding : 5,
             ctrlTime : {
-                height : 50,
-                resize : 5
+                height : 50
             }
         };
 
@@ -157,13 +156,13 @@ define(['../module'], function (controllers) {
             /*
             * Define as escalas de tempos para utilização no eixo X do gráfico principal e no brush
             */
-            x = d3.time.scale().range([0, width]),
-            x2 = d3.time.scale().range([0, width]);
+            x = d3.time.scale().range([0, axis.x.width]),
+            x2 = d3.time.scale().range([0, axis.x.width]);
 
             /*
             * Define as escalas lineares para utilização no eixo Y do gráfico principal e no brush
             */
-            y = d3.scale.linear().range([height, 0]),
+            y = d3.scale.linear().range([axis.y.height, 0]),
             y2 = d3.scale.linear().range([height2, 0]);
 
             /*
@@ -235,11 +234,11 @@ define(['../module'], function (controllers) {
             * Renderiza o gráfico principal (degrade)
             */
             svg.append("svg:rect")
-            .attr("width", width)
-            .attr("height", height)
+            .attr("width", visLine.width)
+            .attr("height", visLine.height)
             .attr("class", "rectGradient")
             .style("fill", "url(#gradient)")
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+            .attr("transform", "translate(" + visLine.coord.x + "," + visLine.coord.y + ")");
 
             /*
             * Cria o limite de renderização dos pontos do gráfico principal
@@ -247,8 +246,8 @@ define(['../module'], function (controllers) {
             svg.append("defs").append("svg:clipPath")
             .attr("id", "clip")
             .append("svg:rect")
-            .attr("width", width)
-            .attr("height", height);
+            .attr("width", visLine.width)
+            .attr("height", (visLine.height+20));
 
             renderFocus();
             renderFocusSentimentScale();
@@ -262,7 +261,7 @@ define(['../module'], function (controllers) {
             focus = svg.append("g")
             .attr("class", "focus")
             .attr("clip-path", "url(#clip)")
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+            .attr("transform", "translate(" + visLine.coord.x + "," + visLine.coord.y + ")");
 
             /*
             * Define os dominios para as escalas x, x2 de acordo com as datas dos tweets
@@ -289,7 +288,7 @@ define(['../module'], function (controllers) {
             */
             focus.append("g")
             .attr("class", "x axis")
-            .attr("transform", "translate(0," + height + ")")
+            .attr("transform", "translate(0," + visLine.height + ")")
             .call(xAxis);
         }
 
@@ -304,7 +303,7 @@ define(['../module'], function (controllers) {
             */           
             var labelScale = d3.scale.ordinal()
             .domain(sentimentos.map(function(d){ return d.description; }))
-            .rangePoints([0, height]);
+            .rangePoints([0, visLine.height]);
             
             /*
             * Define a axis (Y) com a representação textual da escala de sentimentos
@@ -316,8 +315,9 @@ define(['../module'], function (controllers) {
             /*
             * Renderiza a axis de sentimento textual (Y)
             */   
-            focus.append("g")
+            svg.append("g")
             .attr("class", "y axis")
+            .attr("transform", "translate("+ visLine.coord.x +"," + visLine.coord.y + ")")
             .call(sentimentAxis);
         }
 
@@ -327,7 +327,7 @@ define(['../module'], function (controllers) {
             */
             context = svg.append("g")
             .attr("class", "context")
-            .attr("transform", "translate(" + margin2.left + "," + margin2.top + ")");
+            .attr("transform", "translate(" + axis.ctrl.coord.x + "," + axis.ctrl.coord.y + ")");
 
             /*
             * Renderiza a linha do gráfico de controle
@@ -342,7 +342,7 @@ define(['../module'], function (controllers) {
             */
             context.append("g")
             .attr("class", "x axis")
-            .attr("transform", "translate(0," + height2 + ")")
+            .attr("transform", "translate(0," + canvas.ctrlTime.height + ")")
             .call(xAxis2);
 
             /*
@@ -357,8 +357,8 @@ define(['../module'], function (controllers) {
             .attr("class", "x brush")
             .call(brush)
             .selectAll("rect")
-            .attr("y", -6)
-            .attr("height", height2 + 7);
+            .attr("y", -canvas.padding)
+            .attr("height", canvas.ctrlTime.height + canvas.padding - 1);
         }
 
         /*
