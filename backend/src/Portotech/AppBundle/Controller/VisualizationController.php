@@ -116,6 +116,9 @@ class VisualizationController extends FOSRestController
 
                 $em->getRepository("PortotechAppBundle:Tweet")->loadDataFileRaw($filePath, $entity->getId());
 
+                $entity->setTotalTweets($em->getRepository("PortotechAppBundle:Tweet")->countTweetsByVisualization($entity->getId()));
+                $em->flush();
+
                 $em->getConnection()->commit();
 
                 return $this->view(Codes::HTTP_CREATED);

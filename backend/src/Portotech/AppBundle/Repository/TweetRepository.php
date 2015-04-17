@@ -31,6 +31,12 @@ class TweetRepository extends EntityRepository
         ));
     }
 
+    public function countTweetsByVisualization($visualization) {
+        $query = $this->getEntityManager()->createQuery("SELECT COUNT(t.id) FROM PortotechAppBundle:Tweet t WHERE t.visualization = ?1");
+        $query->setParameter(1, $visualization);
+        return $query->getSingleScalarResult();
+    }
+
     public function findTweetsTagsByVisualization($visualization){
         $db = $this->getEntityManager()->getConnection();
         $sql = "SELECT words, COUNT(words) AS total

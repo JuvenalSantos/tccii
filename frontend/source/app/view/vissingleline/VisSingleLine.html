@@ -1,8 +1,29 @@
-<div class="pull-left">
-	<label>{{visualization.name}}</label>
-</div>
+<!-- <div class="pull-left">
+	<ul class="list-inline">
+		<li>
+			<label class="btn btn-default btn-xs active">
+				<span class="fa fa-file-text-o"></span> {{visualization.name}}
+			</label>
+		</li>
+		<li>
+			<label class="btn btn-default btn-xs active">
+				<span class="fa fa-twitter"></span> {{4404400 | number}}
+			</label>
+		</li>
+	</ul>
+</div> -->
 <div class="pull-right">
 	<ul class="list-inline">
+		<li>
+			<label class="btn btn-default btn-xs active" tooltip="Arquivo de dados da visualização">
+				<span class="fa fa-file-text-o"></span> {{visualization.name}}
+			</label>
+		</li>
+		<li>
+			<label class="btn btn-default btn-xs active" tooltip="Total de tweets análisados">
+				<span class="fa fa-twitter"></span> {{visualization.total_tweets | number}}
+			</label>
+		</li>
 		<li>
 			<!--<label>Agregação: </label>-->
 		 	<div class="btn-group btn-group-xs" >
