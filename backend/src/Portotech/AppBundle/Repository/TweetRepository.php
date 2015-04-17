@@ -14,9 +14,20 @@ use PDO;
 class TweetRepository extends EntityRepository
 {
 
-    public function loadDataFileRaw($file, $visualization) {
+    public function loadDataFile($file, $visualization) {
         $db = $this->getEntityManager()->getConnection();
-        $sql = "LOAD DATA INFILE :file IGNORE   INTO TABLE Tweet FIELDS TERMINATED BY '\t' LINES TERMINATED BY '\r\n' IGNORE 1 LINES (tweet_id, tweet_text, user, retweets, words, creat_at, hashtags, subject, sentiment) SET Visualization_id = :visualization";
+        $sql = "LOAD DATA INFILE :file INTO TABLE Tweet FIELDS TERMINATED BY '\t' LINES TERMINATED BY '\r\n' IGNORE 1 LINES (tweet_id, tweet_text, user, retweets, words, creat_at, hashtags, subject, sentiment) SET Visualization_id = :visualization";
+
+        $stmt = $db->prepare($sql);
+        $stmt->bindParam(':file', $file, PDO::PARAM_STR);
+        $stmt->bindParam(':visualization', $visualization, PDO::PARAM_INT);
+
+        return $stmt->execute();
+    }
+
+    public function loadDataFileIgnoreOn($file, $visualization) {
+        $db = $this->getEntityManager()->getConnection();
+        $sql = "LOAD DATA INFILE :file IGNORE INTO TABLE Tweet FIELDS TERMINATED BY '\t' LINES TERMINATED BY '\r\n' IGNORE 1 LINES (tweet_id, tweet_text, user, retweets, words, creat_at, hashtags, subject, sentiment) SET Visualization_id = :visualization";
 
         $stmt = $db->prepare($sql);
         $stmt->bindParam(':file', $file, PDO::PARAM_STR);

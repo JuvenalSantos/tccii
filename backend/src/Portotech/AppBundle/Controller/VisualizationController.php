@@ -114,7 +114,7 @@ class VisualizationController extends FOSRestController
 
                 $filePath = $this->container->getParameter('absolute_path_upload').'/'.$entity->getFile();
 
-                $em->getRepository("PortotechAppBundle:Tweet")->loadDataFileRaw($filePath, $entity->getId());
+                $em->getRepository("PortotechAppBundle:Tweet")->loadDataFile($filePath, $entity->getId());
 
                 $entity->setTotalTweets($em->getRepository("PortotechAppBundle:Tweet")->countTweetsByVisualization($entity->getId()));
                 $em->flush();
