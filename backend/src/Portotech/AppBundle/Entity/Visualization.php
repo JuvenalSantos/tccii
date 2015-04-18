@@ -44,6 +44,13 @@ class Visualization
     private $file;
 
     /**
+     * @var integer
+     *
+     * @ORM\Column(name="total_tweets", type="integer", precision=0, scale=0, nullable=false, unique=false)
+     */
+    private $totalTweets;
+
+    /**
      * @var \Portotech\AppBundle\Entity\Sentimentscale
      *
      * @ORM\OneToMany(targetEntity="Portotech\AppBundle\Entity\Sentimentscale", mappedBy="visualization", cascade={"all"});
@@ -138,6 +145,22 @@ class Visualization
     }
 
     /**
+     * @return int
+     */
+    public function getTotalTweets()
+    {
+        return $this->totalTweets;
+    }
+
+    /**
+     * @param int $totalTweets
+     */
+    public function setTotalTweets($totalTweets)
+    {
+        $this->totalTweets = $totalTweets;
+    }
+
+    /**
      * Add Sentimentscale
      *
      * @param \Portotech\AppBundle\Entity\Sentimentscale $sentiment
@@ -168,4 +191,5 @@ class Visualization
     public function getSentiments() {
         return $this->sentiments;
     }
+
 }

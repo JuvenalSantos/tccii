@@ -3,6 +3,7 @@
 namespace Portotech\AppBundle\Controller;
 
 use JMS\Serializer\SerializationContext;
+use Portotech\AppBundle\Entity\VisSingleLine;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -27,6 +28,55 @@ class TweetController extends FOSRestController
 {
 
     /**
+     * Lists all Tweet entities Aggregated by Visualization id.
+     *
+     * @ApiDoc(
+     *     section = "02 - Tweet",
+     *     statusCodes={
+     *         200="Returned when successful",
+     *     }
+     * )
+     * @Rest\Get("/vissingleline/{id}/{aggregation}", name="tweets_aggregated_by_visualization")
+     */
+    public function tweetsByVisualizationAction($id, $aggregation)
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $visualization = $em->getRepository('PortotechAppBundle:Visualization')->find($id);
+
+        if (!$visualization) {
+            throw $this->createNotFoundException('Unable to find Visualization entity.');
+        }
+
+        $visSingleLine = new VisSingleLine($visualization);
+
+        switch($aggregation) {
+            case '5m':
+                $lines = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsEachFiveMinutesByVisualization($id);
+                break;
+
+            case '10m':
+                $lines = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsEachTenMinutesByVisualization($id);
+                break;
+
+            case '15m':
+                $lines = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsEachFifteenMinutesByVisualization($id);
+                break;
+
+            case '30m':
+                $lines = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsEachThirtyMinutesByVisualization($id);
+                break;
+
+            default:
+                throw $this->createNotFoundException('Unable to find aggregation parameter.');
+        }
+
+        $visSingleLine->setLines($lines);
+
+        return $this->view($visSingleLine->getLines());
+    }
+
+    /**
      * Lists all Tweet entities.
      *
      * @ApiDoc(
@@ -44,30 +94,6 @@ class TweetController extends FOSRestController
         $entities = $em->getRepository('PortotechAppBundle:Tweet')->findAll();
 
         return $this->view($entities);
-    }
-
-    /**
-     * Lists all Tweet entities by Visualization Id.
-     *
-     * @ApiDoc(
-     *     section = "02 - Tweet",
-     *     statusCodes={
-     *         200="Returned when successful",
-     *     }
-     * )
-     * @Rest\Get("/visualization/{id}", name="tweets_by_visualization")
-     */
-    public function tweetsByVisualizationAction($id)
-    {
-        $em = $this->getDoctrine()->getManager();
-
-        $entities = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsByVisualizationId($id);
-
-        $view = $this->view($entities)->setSerializationContext(
-            SerializationContext::create()->setGroups(array('Default'))
-        );
-
-        return $view;
     }
 
     /**

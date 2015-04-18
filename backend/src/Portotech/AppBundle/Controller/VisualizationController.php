@@ -6,6 +6,7 @@ use Doctrine\Common\Util\Debug;
 use Doctrine\DBAL\DBALException;
 use PDOException;
 use Portotech\AppBundle\Entity\FileUpload;
+use Portotech\AppBundle\Entity\VisSingleLine;
 use Portotech\AppBundle\Form\FileUploadType;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
@@ -113,7 +114,10 @@ class VisualizationController extends FOSRestController
 
                 $filePath = $this->container->getParameter('absolute_path_upload').'/'.$entity->getFile();
 
-                $em->getRepository("PortotechAppBundle:Tweet")->loadDataFileRaw($filePath, $entity->getId());
+                $em->getRepository("PortotechAppBundle:Tweet")->loadDataFile($filePath, $entity->getId());
+
+                $entity->setTotalTweets($em->getRepository("PortotechAppBundle:Tweet")->countTweetsByVisualization($entity->getId()));
+                $em->flush();
 
                 $em->getConnection()->commit();
 
@@ -144,7 +148,7 @@ class VisualizationController extends FOSRestController
 
 
     /**
-     * Finds and displays a Visualization entity.
+     * Finds and displays a Visualization entity (Basic information).
      *
      * @ApiDoc(
      *     section = "01 - Visualization",
@@ -152,7 +156,7 @@ class VisualizationController extends FOSRestController
      *         200="Returned when successful",
      *     }
      * )
-     * @Rest\Get("{id}", name="visualization_show")
+     * @Rest\Get("/{id}", name="visualization_show")
      */
     public function showAction($id)
     {
@@ -165,6 +169,59 @@ class VisualizationController extends FOSRestController
         }
 
         return $this->view($entity);
+    }
+
+    /**
+     * Finds and displays a Visualization entity (Full information).
+     *
+     * @ApiDoc(
+     *     section = "01 - Visualization",
+     *     statusCodes={
+     *         200="Returned when successful",
+     *     }
+     * )
+     * @Rest\Get("/full/{id}/{aggregation}", name="visualization_show_full")
+     */
+    public function showFullAction($id, $aggregation)
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $visualization = $em->getRepository('PortotechAppBundle:Visualization')->find($id);
+
+        if (!$visualization) {
+            throw $this->createNotFoundException('Unable to find Visualization entity.');
+        }
+
+        $visSingleLine = new VisSingleLine($visualization);
+
+        switch($aggregation) {
+            case '5m':
+                $lines = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsEachFiveMinutesByVisualization($id);
+                break;
+
+            case '10m':
+                $lines = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsEachTenMinutesByVisualization($id);
+                break;
+
+            case '15m':
+                $lines = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsEachFifteenMinutesByVisualization($id);
+                break;
+
+            case '30m':
+                $lines = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsEachThirtyMinutesByVisualization($id);
+                break;
+
+            default:
+                throw $this->createNotFoundException('Unable to find aggregation parameter.');
+        }
+
+        $visSingleLine->setLines($lines);
+
+        $cloudTags = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsTagsByVisualization($id);
+        $visSingleLine->setCloudTags($cloudTags);
+
+
+        return $this->view($visSingleLine);
     }
 
     /**

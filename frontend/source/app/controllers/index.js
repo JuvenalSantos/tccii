@@ -1,6 +1,7 @@
 define([
 	'./home/HomeController',
 	'./loadfile/LoadFileController',
+	'./vissingleline/VisSingleLine',
 
 	'./user/UserController',
     './user/UserAddController', 

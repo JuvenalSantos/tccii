@@ -584,7 +584,7 @@ a:active, a:selected, a:visited {
 .hz {
     cursor: w-resize;
 }
-.btn-group {
+.btn-group-nav {
     margin-top: 10px;
 }
 .dropdown-menu {

@@ -10,8 +10,11 @@
                 <th>
                     Arquivo de dados
                 </th>
+                <th>
+                    Tweets
+                </th>
                 <th colspan="2">
-                    Criado em
+                    Importado em
                 </th>
             </tr>
             <tr data-ng-repeat="visualization in visulalizations">
@@ -19,10 +22,15 @@
                     {{visualization.name}}
                 </td>
                 <td>
+                    {{visualization.total_tweets | number}}
+                </td>
+                <td>
                     {{visualization.creat_at  | date:'dd/MM/yyyy HH:mm:ss'}}
                 </td>
                 <td>
-                    <span class="glyphicon glyphicon-play-circle pull-right"></span>
+                    <a href="#/VisSingleLine/{{visualization.id}}">
+                        <span class="glyphicon glyphicon-play-circle pull-right"></span>
+                    </a>
                 </td>
             </tr>
         </table>
