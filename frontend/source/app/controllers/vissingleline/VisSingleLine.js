@@ -255,6 +255,7 @@ define(['../module'], function (controllers) {
             .words($scope.cloudTags)
             .start();
 
+
             /*
             * Define o controle da Timeline
             */
@@ -442,7 +443,7 @@ define(['../module'], function (controllers) {
         */
         function drawTags(words) {
             svg.append("g")
-            .attr("transform", "translate("+ visLine.cloudTag.coord.x +", "+ visLine.cloudTag.coord.y +")")
+            .attr("transform", "translate("+( visLine.cloudTag.coord.x - 60 )+", "+ visLine.cloudTag.coord.y +")")
             .selectAll("text")
             .data(words)
             .enter()

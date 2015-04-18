@@ -15,18 +15,18 @@
 <div class="pull-right">
 	<ul class="list-inline">
 		<li>
-			<label class="btn btn-default btn-xs active" tooltip="Arquivo de dados da visualização">
+			<label class="btn btn-default btn-sm active" tooltip="Arquivo de dados da visualização">
 				<span class="fa fa-file-text-o"></span> {{visualization.name}}
 			</label>
 		</li>
 		<li>
-			<label class="btn btn-default btn-xs active" tooltip="Total de tweets análisados">
+			<label class="btn btn-default btn-sm active" tooltip="Total de tweets análisados">
 				<span class="fa fa-twitter"></span> {{visualization.total_tweets | number}}
 			</label>
 		</li>
 		<li>
 			<!--<label>Agregação: </label>-->
-		 	<div class="btn-group btn-group-xs" >
+		 	<div class="btn-group btn-group-sm" >
 				<label class="btn btn-default" ng-model="form.aggregation" ng-change="changeAggregation()" btn-radio="'5m'">
 					<span class="fa fa-clock-o" ></span> 5m
 				</label>
@@ -53,7 +53,7 @@
 			</div>
 		</li>
 		<li>
-			<label class="btn btn-default btn-xs" ng-click="clearBrushSelection()" tooltip="Limpa o intervalo de tempo selecionado"><span class="fa fa-eraser"></span> Limpar seleção</label>
+			<label class="btn btn-default btn-sm" ng-click="clearBrushSelection()" tooltip="Limpa o intervalo de tempo selecionado"><span class="fa fa-eraser"></span> Limpar seleção</label>
 		</li>
 	</ul>
 </div>
