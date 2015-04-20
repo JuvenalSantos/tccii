@@ -18,15 +18,45 @@
 		<link rel="stylesheet" href="css/sweet-alert.css">
 		<script src="js/modernizr.js"></script>
 	</head>
-	<body data-ng-class="{outpage: !isAuthorized}">
+	<body>
 		<!--[if lte IE 7]>
 			<p class="browsehappy">Você está utilizando um navegador <strong>desatualizado</strong>. Por favor
 				<a href="http://browsehappy.com/">atualize seu navegador</a> para melhorar sua experiência no site.</p>
 		<![endif]-->
 
-		<header class="navbar navbar-default clearfix" role="navigation">
-			<h2 class="navbar-brand navbar-left">VInT</h2>
-		</header>
+
+        <nav class="navbar navbar-default" role="navigation">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="#" data-toggle="modal" data-target="#myModal">VInT</a>
+                </div>
+
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                    <div class="btn-group btn-group-nav btn-group-sm">
+                        <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown">
+                            Arquivo <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a href="#/LoadFile">Nova importação</a></li>
+                            <li><a href="#/Home">Exibir importações</a></li>
+                            <li class="divider"></li>
+                            <li><a href="#">Sair</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="btn-group btn-group-nav btn-group-sm" data-toggle="buttons">
+                        <label class="btn btn-default active">
+                            <input type="radio" name="options" id="option1">Gráfico de linha
+                        </label>
+                        <label class="btn btn-default">
+                            <input type="radio" name="options" id="option2">Gráfico de bolha
+                        </label>
+                    </div>
+
+                </div>
+            </div>
+        </nav>
+
 		<div data-ng-view="" id="ng-view" data-ng-animate="{enter: 'animated fadeIn'}"></div>
 
 		<!-- Load scripts -->

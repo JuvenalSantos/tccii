@@ -10,14 +10,12 @@ module.exports = function(grunt) {
 		},
 		js: {
 			src: ['temp/js/jquery.min.js', 
-				  'temp/js/angular.min.js', 
+				  'temp/js/angular.min.js',
+				  'temp/js/d3.min.js',
+				  'temp/js/d3.layout.cloud.js',
 				  'temp/js/angular-route.min.js', 
 				  'temp/js/angular-resource.min.js',
 				  'temp/js/angular-locale_pt-br.js',
-/*				  'temp/js/angular-digest-auth.min.js',
-				  'temp/js/angular-cookies.min.js',
-				  'temp/js/angular-state-machine.min.js',
-				  'temp/js/angular-md5.min.js',*/
 				  'temp/js/angular-utf8-base64.min.js',
 				  'temp/js/bootstrap.min.js', 
 				  'temp/js/ui-bootstrap-0.11.2.min.js', 
@@ -59,14 +57,12 @@ module.exports = function(grunt) {
 				{expand: true, flatten: true, cwd: "components/", 
 					src: [
 					'jquery/dist/jquery.min.js', 
-					'angular/angular.min.js', 
+					'angular/angular.min.js',
+					'd3/d3.min.js',
+					'd3-cloud/d3.layout.cloud.js',
 					'angular-route/angular-route.min.js', 
 					'angular-resource/angular-resource.min.js',
 					'angular-i18n/angular-locale_pt-br.js',
-/*					'angular-digest-auth/dist/angular-digest-auth.min.js',
-					'angular-cookies/angular-cookies.min.js',
-					'angular-state-machine/dist/angular-state-machine.min.js',
-					'angular-md5/angular-md5.min.js',*/
 					'angular-utf8-base64/angular-utf8-base64.min.js',
 					'bootstrap/dist/**/*.min.js', 
 					'toastr/toastr.min.js', 
@@ -202,32 +198,6 @@ module.exports = function(grunt) {
 		}
 	}
 
-	/*sass: {
-		dist: {
-			options: {
-				style: 'compressed',
-				require: ['./assets/styles/sass/helpers/url64.rb']
-			},
-			expand: true,
-			cwd: './app/styles/sass/',
-			src: ['*.scss'],
-			dest: './app/styles/',
-			ext: '.css'
-		},
-		dev: {
-			options: {
-				style: 'expanded',
-				debugInfo: true,
-				lineNumbers: true,
-				require: ['./app/styles/sass/helpers/url64.rb']
-			},
-			expand: true,
-			cwd: './app/styles/sass/',
-			src: ['*.scss'],
-			dest: './app/styles/',
-			ext: '.css'
-		}
-	}*/
   });
 
   grunt.loadNpmTasks('grunt-contrib-watch');
@@ -239,7 +209,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-connect');
 
-  // grunt.registerTask('default', ['copy', 'clean']);
   grunt.registerTask('dev', ['clean:dist', 'copy', 'cssmin:temp', 'concat', 'concat_css', 'clean:temp', 'watch']);
   grunt.registerTask('build', ['clean:dist', 'copy', 'uglify:temp', 'cssmin:temp', 'concat', 'concat_css', 'clean:temp', 'watch']);
   grunt.registerTask('server', ['connect:server']);

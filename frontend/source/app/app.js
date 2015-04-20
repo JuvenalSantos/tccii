@@ -10,7 +10,7 @@ define([
         'ngResource',
         'ab-base64',
         'VInTApp.controllers',
-        //'VInTApp.factories',
+        'VInTApp.factories',
         'VInTApp.directives',
         'ui.bootstrap',
         'ngImgCrop',
@@ -35,8 +35,8 @@ define([
         $validationProvider.setErrorHTML(function (msg) {
                return  "<label class=\"control-label has-error \">" + msg + "</label>";
         });
-
-    }).run(function ($rootScope, $location, $http, $compile, USER_ROLES) {
+    })
+    .run(function ($rootScope, $location, $http, $compile, USER_ROLES) {
 
     })
 

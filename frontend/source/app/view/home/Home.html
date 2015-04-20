@@ -1,0 +1,38 @@
+<div class="col-md-6 col-md-offset-3" data-ng-if="true || isFirstStep()">
+    <div class="row">
+        <div class="panel panel-default" style="height: 100px; margin-top: 10%">
+            <div class="panel-body text-center">
+                <h3>VInT <small><i>Visualização de Informações para Twitter</i></small></h3>
+            </div>
+        </div>
+        <table class="table table-striped">
+            <tr>
+                <th>
+                    Arquivo de dados
+                </th>
+                <th>
+                    Tweets
+                </th>
+                <th colspan="2">
+                    Importado em
+                </th>
+            </tr>
+            <tr data-ng-repeat="visualization in visulalizations">
+                <td>
+                    {{visualization.name}}
+                </td>
+                <td>
+                    {{visualization.total_tweets | number}}
+                </td>
+                <td>
+                    {{visualization.creat_at  | date:'dd/MM/yyyy HH:mm:ss'}}
+                </td>
+                <td>
+                    <a href="#/VisSingleLine/{{visualization.id}}">
+                        <span class="glyphicon glyphicon-play-circle pull-right"></span>
+                    </a>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
