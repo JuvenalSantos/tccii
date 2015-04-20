@@ -1,0 +1,33 @@
+Version 0.1.0
+ - Merge branch 'feature-AddBumpversion' into develop
+ - Adiciona bumpversion
+ - Merge branch 'feature-AddVisualizationLine' into develop
+ - Corrige o posicionamento da cloudTag. Altera o tamanho os botões da toolbar.
+ - Altera a escala de coloração da CloudTag para cinza.
+ - Altera a nomenclatura do método de importação de dados. Adiciona metodo auxiliar para importacao de arquivo com incosistencias
+ - Adiciona tatol de tweets importados na visualização
+ - Remove o svg ao trocar de página
+ - Adiciona toolbar para seleção dos periodos de agregação e reset da seleção do intervalo de tempo (brush). Adicionar datetime no padrão pt-br.
+ - Adiciona cloudTag
+ - Adiciona funções de CloudTag ao backend
+ - Corrige a escala de sentimento textual. Adiciona dominio dinamico para a escala de sentimento
+ - Remove variaveis preciadas
+ - Adiciona autoscaling da visualização
+ - Corrige o erro de limite da linha do gráfico (clipPath)
+ - Adiciona função do MySQL para agrupar tweets por 10, 15 e 30min. Separação do código de renderização do gráfico.
+ - Adiciona d3.layout.cloud. Adiciona a página da visualização. Adiciona comentários ao código
+ - Merge branch 'feature-AddTweetService' into develop
+ - Corrige o erro de representação do tweet_id
+ - Adiciona recusro básico de REST CRUD a entidade Tweet. Adiciona recurso que permite retornar Tweets de Visualização com filtro de atributos.
+ - Merge branch 'feature-loadDataFile' into develop
+ - Adiciona tratamento de exceção para arquivo de dados inválido. Aumenta o tempo de exibição das notificações para 10 segundos.
+ - Adiciona a configuração do diretório de upload de arquivo de dados ao parameters.yml
+ - Remove metodo loadDataFile desnecessario
+ - Corrige o BUG do AppArmor que permite utilizar LOAD DATA INFILE
+ - Adiciona validações na importação dos dados
+ - Adiciona entidade SentimentScale. Atualiza a entidade Tweet e Visualization
+ - Conclui a importação de dados do frontend
+ - Adiciona upload de arquivo e contagem de sentimentos
+ - Clean project
+ - Initial commit
+
