@@ -630,3 +630,7 @@ a:active, a:selected, a:visited {
     fill-opacity: .125;
     shape-rendering: crispEdges;
 }
+
+circle {
+	fill-opacity: 0.3;
+}

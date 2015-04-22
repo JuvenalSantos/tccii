@@ -2,11 +2,11 @@
 	<ul class="list-inline">
 		<li>
 		    <div class="btn-group btn-group-sm">
-				<a class="btn btn-default active" href="#/VisSingleLine/{{visualization.id}}" btn-radio="">
+				<a class="btn btn-default" href="#/VisSingleLine/{{visualization.id}}" btn-radio="">
 					<span class="fa fa-clock-o"></span>  Gráfico de linha
 				</a>
 
-				<a class="btn btn-default" href="#/VisBubble/{{visualization.id}}" btn-radio="">
+				<a class="btn btn-default active" href="#/VisBubble/{{visualization.id}}" btn-radio="">
 					<span class="fa fa-clock-o"></span> Gráfico de circulo
 				</a>
 		    </div>
@@ -28,7 +28,7 @@
 		</li>
 		<li>
 			<!--<label>Agregação: </label>-->
-		 	<div class="btn-group btn-group-sm" >
+		 	<div class="btn-group btn-group-sm" data-ng-if="false">
 				<label class="btn btn-default" ng-model="form.aggregation" ng-change="changeAggregation()" btn-radio="'5m'">
 					<span class="fa fa-clock-o" ></span> 5m
 				</label>

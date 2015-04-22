@@ -28,9 +28,18 @@
                     {{visualization.creat_at  | date:'dd/MM/yyyy HH:mm:ss'}}
                 </td>
                 <td>
-                    <a href="#/VisSingleLine/{{visualization.id}}">
-                        <span class="glyphicon glyphicon-play-circle pull-right"></span>
-                    </a>
+                    <ul class="list-inline">
+                        <li>
+                            <a href="#/VisBubble/{{visualization.id}}">
+                                <span class="glyphicon glyphicon-play-circle pull-right"></span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#/VisSingleLine/{{visualization.id}}">
+                                <span class="glyphicon glyphicon-play-circle pull-right"></span>
+                            </a>
+                        </li>
+                    </ul>
                 </td>
             </tr>
         </table>

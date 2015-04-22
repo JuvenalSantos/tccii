@@ -119,5 +119,17 @@ class TweetRepository extends EntityRepository
         return $stmt->fetchAll();
     }
 
+    public function findTweetsByVisualization($visualization, $retweets){
+        $db = $this->getEntityManager()->getConnection();
+        $sql = "SELECT tweet_id, DATE_FORMAT(creat_at,'%Y-%m-%dT%H:%i:%s') AS creat_at, retweets, sentiment
+                FROM Tweet
+                WHERE Visualization_id = :visualization AND retweets >= :retweets
+                ORDER BY creat_at";
+        $stmt = $db->prepare($sql);
+        $stmt->bindParam(':visualization', $visualization, PDO::PARAM_INT);
+        $stmt->bindParam(':retweets', $retweets, PDO::PARAM_INT);
 
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
 }

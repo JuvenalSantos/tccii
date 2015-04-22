@@ -6,6 +6,7 @@ use Doctrine\Common\Util\Debug;
 use Doctrine\DBAL\DBALException;
 use PDOException;
 use Portotech\AppBundle\Entity\FileUpload;
+use Portotech\AppBundle\Entity\VisBubble;
 use Portotech\AppBundle\Entity\VisSingleLine;
 use Portotech\AppBundle\Form\FileUploadType;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -222,6 +223,36 @@ class VisualizationController extends FOSRestController
 
 
         return $this->view($visSingleLine);
+    }
+
+    /**
+     * Finds and displays a VisBubble entity (Full information).
+     *
+     * @ApiDoc(
+     *     section = "01 - Visualization",
+     *     statusCodes={
+     *         200="Returned when successful",
+     *     }
+     * )
+     * @Rest\Get("/visbubble/{id}/{retweets}", name="visualization_bubble_show_full")
+     */
+    public function shoVisBubblewFullAction($id, $retweets)
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $visualization = $em->getRepository('PortotechAppBundle:Visualization')->find($id);
+
+        if (!$visualization) {
+            throw $this->createNotFoundException('Unable to find Visualization entity.');
+        }
+
+        $visBubble = new VisBubble($visualization);
+
+        $bubbles = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsByVisualization($id, $retweets);
+
+        $visBubble->setBubbles($bubbles);
+
+        return $this->view($visBubble);
     }
 
     /**

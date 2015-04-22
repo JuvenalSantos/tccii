@@ -10,6 +10,11 @@ define(['./module'], function (factories) {
 				method : "GET",
 				params: {id: '@id', aggregation: '@aggregation'},
 				url: baseURL + "visualization/full/:id/:aggregation"
+			},
+			getFullVisBubble: {
+				method : "GET",
+				params: {id: '@id', retweets: '@retweets'},
+				url: baseURL + "visualization/visbubble/:id/:retweets"
 			}
 		});
 	}

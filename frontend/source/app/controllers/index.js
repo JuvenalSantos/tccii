@@ -2,6 +2,8 @@ define([
 	'./home/HomeController',
 	'./loadfile/LoadFileController',
 	'./vissingleline/VisSingleLine',
+	'./visbubble/VisBubble',
+
 
 	'./user/UserController',
     './user/UserAddController', 
