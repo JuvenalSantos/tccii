@@ -132,4 +132,18 @@ class TweetRepository extends EntityRepository
         $stmt->execute();
         return $stmt->fetchAll();
     }
+
+    public function findTweetsEachHourBySentimentByVisualization($visualization){
+        $db = $this->getEntityManager()->getConnection();
+        $sql = "SELECT DATE_FORMAT(creat_at,'%Y-%m-%dT%H:00:00') AS creat_at, sentiment, COUNT(sentiment) as total
+                FROM Tweet
+                WHERE Visualization_id = :visualization
+                GROUP BY DATE_FORMAT(creat_at,'%Y-%m-%dT%H:00:00'), sentiment
+                ORDER BY creat_at";
+        $stmt = $db->prepare($sql);
+        $stmt->bindParam(':visualization', $visualization, PDO::PARAM_INT);
+
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
 }

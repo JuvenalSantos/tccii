@@ -3,6 +3,7 @@ define([
 	'./loadfile/LoadFileController',
 	'./vissingleline/VisSingleLine',
 	'./visbubble/VisBubble',
+	'./viscircle/VisCircle',
 
 
 	'./user/UserController',

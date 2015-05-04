@@ -632,5 +632,7 @@ a:active, a:selected, a:visited {
 }
 
 circle {
-	fill-opacity: 0.3;
+	fill-opacity: 0.85;
+	stroke: #353232;
+	stroke-width: .5px;
 }

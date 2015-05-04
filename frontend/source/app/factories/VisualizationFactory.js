@@ -15,6 +15,11 @@ define(['./module'], function (factories) {
 				method : "GET",
 				params: {id: '@id', retweets: '@retweets'},
 				url: baseURL + "visualization/visbubble/:id/:retweets"
+			},
+			getFullVisCircle: {
+				method : "GET",
+				params: {id: '@id'},
+				url: baseURL + "visualization/viscircle/:id"
 			}
 		});
 	}

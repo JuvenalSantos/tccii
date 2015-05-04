@@ -7,6 +7,7 @@ use Doctrine\DBAL\DBALException;
 use PDOException;
 use Portotech\AppBundle\Entity\FileUpload;
 use Portotech\AppBundle\Entity\VisBubble;
+use Portotech\AppBundle\Entity\VisCircle;
 use Portotech\AppBundle\Entity\VisSingleLine;
 use Portotech\AppBundle\Form\FileUploadType;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -253,6 +254,36 @@ class VisualizationController extends FOSRestController
         $visBubble->setBubbles($bubbles);
 
         return $this->view($visBubble);
+    }
+
+    /**
+     * Finds and displays a VisCircle entity (Full information).
+     *
+     * @ApiDoc(
+     *     section = "01 - Visualization",
+     *     statusCodes={
+     *         200="Returned when successful",
+     *     }
+     * )
+     * @Rest\Get("/viscircle/{id}", name="visualization_circle_show_full")
+     */
+    public function shoVisCircleFullAction($id)
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $visualization = $em->getRepository('PortotechAppBundle:Visualization')->find($id);
+
+        if (!$visualization) {
+            throw $this->createNotFoundException('Unable to find Visualization entity.');
+        }
+
+        $visCircle = new VisCircle($visualization);
+
+        $circles = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsEachHourBySentimentByVisualization($id);
+
+        $visCircle->setCircles($circles);
+
+        return $this->view($visCircle);
     }
 
     /**
