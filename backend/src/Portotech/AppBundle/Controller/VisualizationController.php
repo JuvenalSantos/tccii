@@ -227,36 +227,6 @@ class VisualizationController extends FOSRestController
     }
 
     /**
-     * Finds and displays a VisBubble entity (Full information).
-     *
-     * @ApiDoc(
-     *     section = "01 - Visualization",
-     *     statusCodes={
-     *         200="Returned when successful",
-     *     }
-     * )
-     * @Rest\Get("/visbubble/{id}/{retweets}", name="visualization_bubble_show_full")
-     */
-    public function shoVisBubblewFullAction($id, $retweets)
-    {
-        $em = $this->getDoctrine()->getManager();
-
-        $visualization = $em->getRepository('PortotechAppBundle:Visualization')->find($id);
-
-        if (!$visualization) {
-            throw $this->createNotFoundException('Unable to find Visualization entity.');
-        }
-
-        $visBubble = new VisBubble($visualization);
-
-        $bubbles = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsByVisualization($id, $retweets);
-
-        $visBubble->setBubbles($bubbles);
-
-        return $this->view($visBubble);
-    }
-
-    /**
      * Finds and displays a VisCircle entity (Full information).
      *
      * @ApiDoc(
