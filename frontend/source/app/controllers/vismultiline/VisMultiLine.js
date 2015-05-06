@@ -79,32 +79,7 @@ define(['../module'], function (controllers) {
         .attr("width", canvas.width)
         .attr("height", canvas.height)
         .style("background", "#fff")
-        .append("g");
-       
-        // Backgroud do Gráfico
-        var gradient = svg.append("svg:defs")
-        .append("svg:linearGradient")
-        .attr("id", "gradient")
-        .attr("x1", "0%")
-        .attr("y1", "0%")
-        .attr("x2", "0%")
-        .attr("y2", "100%")
-        .attr("spreadMethod", "pad");
-
-        gradient.append("svg:stop")
-        .attr("offset", "0%")
-        .attr("stop-color", "#368F01")
-        .attr("stop-opacity", visLine.gradient.opacity);
-
-        gradient.append("svg:stop")
-        .attr("offset", "50%")
-        .attr("stop-color", "#ECEC00")
-        .attr("stop-opacity", visLine.gradient.opacity);
-
-        gradient.append("svg:stop")
-        .attr("offset", "100%")
-        .attr("stop-color", "#FA3301")
-        .attr("stop-opacity", visLine.gradient.opacity);   
+        .append("g");  
 
         var customTimeFormat = d3.time.format.multi([
             //["%M", function(d) { return d.getMilliseconds(); }],
@@ -142,6 +117,9 @@ define(['../module'], function (controllers) {
         */
         $scope.changeAggregation = function() {
             switch($scope.form.aggregation) {
+                case '5m':
+                case '10m':
+                case '15m':
                 case '30m':
                     TweetFactory.getVisMultiLine({id:$routeParams.id, aggregation: $scope.form.aggregation}, successHandlerChangeAggregation);
                     break;
@@ -166,7 +144,7 @@ define(['../module'], function (controllers) {
         * Função responsável por renderizar o gráfico principal a cada atualização de dados
         */
         $scope.renderUpdate = function() {
-           focus.select(".area").remove();
+           focus.selectAll(".area-g").remove();
            svg.select(".x.axis").remove();
            context.select(".area").remove();
            context.select(".x.axis").remove();
@@ -280,13 +258,6 @@ define(['../module'], function (controllers) {
             .y(function(d) { return y2(d.y); });
 
             /*
-            * Nest the entries by symbol
-            */
-            dataNest = d3.nest()
-                .key(function(d) {return d.sentiment;})
-                .entries($scope.lines);
-
-            /*
             * Renderiza o gráfico principal (degrade)
             */
             svg.append("svg:rect")
@@ -328,7 +299,14 @@ define(['../module'], function (controllers) {
             x.domain(d3.extent($scope.lines.map(function(d) { return d.creat_at; })));
             x2.domain(x.domain());
 
-            // Loop through each symbol / key
+            /*
+            * Agrupa os tweets por sentimento
+            */
+            dataNest = d3.nest()
+                .key(function(d) {return d.sentiment;})
+                .entries($scope.lines);
+
+            // Renderiza linha para cada sentimento
             dataNest.forEach(function(d, e) {
                 focus.append("path")
                 .datum(d.values)

@@ -101,6 +101,17 @@ class TweetController extends FOSRestController
         $visMultiLine = new VisMultiLine($visualization);
 
         switch($aggregation) {
+            case '5m':
+                $lines = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsEachFiveMinutesByVisualizationMultiLine($id);
+                break;
+
+            case '10m':
+                $lines = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsEachTenMinutesByVisualizationMultiLine($id);
+                break;
+
+            case '15m':
+                $lines = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsEachFifteenMinutesByVisualizationMultiLine($id);
+                break;
 
             case '30m':
                 $lines = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsEachThirtyMinutesByVisualizationMultiLine($id);
