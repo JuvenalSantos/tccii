@@ -11,6 +11,12 @@ define(['./module'], function (factories) {
 				params: {id: '@id', aggregation: '@aggregation'},
 				url: baseURL + "tweet/vissingleline/:id/:aggregation",
 				isArray: true
+			},
+			getVisMultiLine: {
+				method : "GET",
+				params: {id: '@id', aggregation: '@aggregation'},
+				url: baseURL + "tweet/vismultiline/:id/:aggregation",
+				isArray: true
 			}
 		});
 	}

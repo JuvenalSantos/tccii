@@ -617,7 +617,12 @@ a:active, a:selected, a:visited {
     stroke: #F03000;
     stroke-width: 1.5px;
     clip-path: url(#clip);
-}            
+}
+.area-g {
+    fill: none;
+    stroke-width: 1.5px;
+    clip-path: url(#clip);
+}           
 .axis path,
 .axis line {
     fill: none;

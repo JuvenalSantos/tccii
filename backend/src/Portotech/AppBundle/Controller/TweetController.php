@@ -3,6 +3,7 @@
 namespace Portotech\AppBundle\Controller;
 
 use JMS\Serializer\SerializationContext;
+use Portotech\AppBundle\Entity\VisMultiLine;
 use Portotech\AppBundle\Entity\VisSingleLine;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -28,7 +29,7 @@ class TweetController extends FOSRestController
 {
 
     /**
-     * Lists all Tweet entities Aggregated by Visualization id.
+     * Lists all Tweet entities Aggregated by Visualization (SingleLine) id.
      *
      * @ApiDoc(
      *     section = "02 - Tweet",
@@ -74,6 +75,44 @@ class TweetController extends FOSRestController
         $visSingleLine->setLines($lines);
 
         return $this->view($visSingleLine->getLines());
+    }
+
+    /**
+     * Lists all Tweet entities Aggregated by Visualization (MultiLine) id.
+     *
+     * @ApiDoc(
+     *     section = "02 - Tweet",
+     *     statusCodes={
+     *         200="Returned when successful",
+     *     }
+     * )
+     * @Rest\Get("/vismultiline/{id}/{aggregation}", name="tweets_aggregated_by_visualization_multiline")
+     */
+    public function tweetsByVisualizationMultiLineAction($id, $aggregation)
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $visualization = $em->getRepository('PortotechAppBundle:Visualization')->find($id);
+
+        if (!$visualization) {
+            throw $this->createNotFoundException('Unable to find Visualization entity.');
+        }
+
+        $visMultiLine = new VisMultiLine($visualization);
+
+        switch($aggregation) {
+
+            case '30m':
+                $lines = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsEachThirtyMinutesByVisualizationMultiLine($id);
+                break;
+
+            default:
+                throw $this->createNotFoundException('Unable to find aggregation parameter.');
+        }
+
+        $visMultiLine->setLines($lines);
+
+        return $this->view($visMultiLine->getLines());
     }
 
     /**

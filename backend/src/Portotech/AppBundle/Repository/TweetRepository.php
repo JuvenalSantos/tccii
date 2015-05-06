@@ -119,5 +119,18 @@ class TweetRepository extends EntityRepository
         return $stmt->fetchAll();
     }
 
+    public function findTweetsEachThirtyMinutesByVisualizationMultiLine($visualization){
+        $db = $this->getEntityManager()->getConnection();
+        $sql = "SELECT dateByThirtyMinutes(creat_at) AS creat_at, quarterByThirtyMinutes(creat_at) AS quarter, sentiment, COUNT(sentiment) AS total
+                FROM Tweet
+                WHERE Visualization_id = :visualization
+                GROUP BY MONTH(creat_at), DAY(creat_at), HOUR(creat_at), sentiment, quarterByThirtyMinutes(creat_at)
+                ORDER BY creat_at";
+        $stmt = $db->prepare($sql);
+        $stmt->bindParam(':visualization', $visualization, PDO::PARAM_INT);
+
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
 
 }

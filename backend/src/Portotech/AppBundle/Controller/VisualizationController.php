@@ -6,6 +6,7 @@ use Doctrine\Common\Util\Debug;
 use Doctrine\DBAL\DBALException;
 use PDOException;
 use Portotech\AppBundle\Entity\FileUpload;
+use Portotech\AppBundle\Entity\VisMultiLine;
 use Portotech\AppBundle\Entity\VisSingleLine;
 use Portotech\AppBundle\Form\FileUploadType;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -222,6 +223,48 @@ class VisualizationController extends FOSRestController
 
 
         return $this->view($visSingleLine);
+    }
+
+    /**
+     * Finds and displays a Visualization entity (MultiLine).
+     *
+     * @ApiDoc(
+     *     section = "01 - Visualization",
+     *     statusCodes={
+     *         200="Returned when successful",
+     *     }
+     * )
+     * @Rest\Get("/multiline/{id}/{aggregation}", name="visualization_show_multiline")
+     */
+    public function showVisualizationMultiLineAction($id, $aggregation)
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $visualization = $em->getRepository('PortotechAppBundle:Visualization')->find($id);
+
+        if (!$visualization) {
+            throw $this->createNotFoundException('Unable to find Visualization entity.');
+        }
+
+        $visMultiLine = new VisMultiLine($visualization);
+
+        switch($aggregation) {
+
+            case '30m':
+                $lines = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsEachThirtyMinutesByVisualizationMultiLine($id);
+                break;
+
+            default:
+                throw $this->createNotFoundException('Unable to find aggregation parameter.');
+        }
+
+        $visMultiLine->setLines($lines);
+
+        $cloudTags = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsTagsByVisualization($id);
+        $visMultiLine->setCloudTags($cloudTags);
+
+
+        return $this->view($visMultiLine);
     }
 
     /**
