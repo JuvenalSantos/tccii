@@ -7,6 +7,7 @@ define(['app'], function (app) {
                   .when('/LoadFile', {templateUrl: 'app/view/loadfile/LoadFile.html',controller: 'LoadFileController'})
                   .when('/VisSingleLine/:id', {templateUrl: 'app/view/vissingleline/VisSingleLine.html',controller: 'VisSingleLine'})
                   .when('/VisMultiLine/:id', {templateUrl: 'app/view/vismultiline/VisMultiLine.html',controller: 'VisMultiLine'})
+                  .when('/VisCircle/:id', {templateUrl: 'app/view/viscircle/VisCircle.html',controller: 'VisCircle'})
 
 
                   /* USER */
