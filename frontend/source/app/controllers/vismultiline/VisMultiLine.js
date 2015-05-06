@@ -14,7 +14,7 @@ define(['../module'], function (controllers) {
         */
         $scope.lines = [];
 
-        var focus, context, area, area2, xAxis, xAxis2, x, x2, y, y2, yAxis, brush, scaleFontColor, dataNest;
+        var focus, context, area, area2, xAxis, xAxis2, x, x2, y, y2, yAxis, brush, scaleFontColor, scaleLineColor, dataNest;
         
 
         var axis = {
@@ -133,7 +133,7 @@ define(['../module'], function (controllers) {
             $scope.visualization.sentiments = $scope.visualization.sentiments.sort( function(a,b){ return d3.descending(a.sentiment, b.sentiment);  });
             $scope.cloudTags = data.cloud_tags;
 
-            initVisSingleLine();
+            initVisMultiLine();
         }
 
         /*
@@ -179,7 +179,7 @@ define(['../module'], function (controllers) {
         /*
         * Função responsável por inicializar os elementos necessários para renderização da visualização
         */
-       function initVisSingleLine() {
+       function initVisMultiLine() {
             /*
             * Define as escalas de tempos para utilização no eixo X do gráfico principal e no brush
             */
@@ -193,7 +193,7 @@ define(['../module'], function (controllers) {
             y2 = d3.scale.linear().range([canvas.ctrlTime.height, 0]);
 
             /*
-            * Define os dominios para a escala y e y2 de acordo como intervalo com a quantidade total de tweets agrupados
+            * Define os dominios para a escala y e y2 de acordo como intervalo com a quantidade total de tweets por agrupamento
             */
             y.domain([0, 1.1*d3.max($scope.lines, function(d){ return +d.y; })]);
             y2.domain(y.domain());
@@ -219,6 +219,15 @@ define(['../module'], function (controllers) {
             var scaleFontSize = d3.scale.linear()
             .domain(d3.extent($scope.cloudTags, function(d){ return d.size; }))
             .rangeRound([visLine.cloudTag.fontSize.min, visLine.cloudTag.fontSize.max]);
+
+            /*
+            * Define a escala da palheta de cores a ser utilizada na coloração das linhas
+            */
+            scaleLineColor = d3.scale.linear()
+            .domain(d3.extent($scope.visualization.sentiments, function(d){ return d.sentiment; }))
+            .rangeRound(["#D12500", "#A0D100"])
+            .interpolate(d3.interpolateHsl)
+            ;
 
             /*
             * Define a escala da palheta de cores a ser utilizada na Cloud Tag
@@ -283,7 +292,7 @@ define(['../module'], function (controllers) {
             .attr("width", visLine.width)
             .attr("height", visLine.height)
             .attr("class", "rectGradient")
-            .style("fill", "url(#gradient)")
+            .style("fill", "#F6F6F6")
             .attr("transform", "translate(" + visLine.coord.x + "," + visLine.coord.y + ")");
 
             /*
@@ -296,7 +305,7 @@ define(['../module'], function (controllers) {
             .attr("height", (visLine.height + 20));
 
             renderFocus();
-            renderFocusSentimentScale();
+            renderFocusCountTweetsScale();
             renderContext();
         }
 
@@ -318,19 +327,12 @@ define(['../module'], function (controllers) {
             x.domain(d3.extent($scope.lines.map(function(d) { return d.creat_at; })));
             x2.domain(x.domain());
 
-            /*
-            * Renderiza a linha do gráfico principal
-            */
-/*            focus.append("path")
-            .datum($scope.lines)
-            .attr("class", "area")
-            .attr("d", area);*/
-
             // Loop through each symbol / key
             dataNest.forEach(function(d, e) {
                 focus.append("path")
                 .datum(d.values)
                 .attr("class", "area-g")
+                .attr("stroke", function(){ return scaleLineColor(d.key); })
                 .attr("d", area);
             });
 
@@ -346,29 +348,16 @@ define(['../module'], function (controllers) {
         /*
         * Função responsável por renderizar a escalade sentimento textual (Axis Y)
         */
-        function renderFocusSentimentScale() {
+        function renderFocusCountTweetsScale() {            
             /*
-            * Lista contendo as descrições da escala de sentimentos 
-            */
-            //var sentimentos = $scope.visualization.sentiments; //['Ótimo', 'Muito bom', 'Bom', 'Médio', 'Ruim', 'Péssimo'];
-
-            /*
-            * Define uma escala ordinal de sentimentos para ser utilizada no gráfico principal
-            */           
-            var labelScale = d3.scale.ordinal()
-            .domain($scope.visualization.sentiments.map(function(d){ return d.description; }))
-            .rangePoints([0, visLine.height])
-            ;
-            
-            /*
-            * Define a axis (Y) com a representação textual da escala de sentimentos
+            * Define a axis (Y) com a representação da escala do total de tweets
             */              
             var sentimentAxis = d3.svg.axis()
-            .scale(labelScale)
+            .scale(y)
             .orient("left");
 
             /*
-            * Renderiza a axis de sentimento textual (Y)
+            * Renderiza a axis Y
             */   
             svg.append("g")
             .attr("class", "y axis")
@@ -386,14 +375,6 @@ define(['../module'], function (controllers) {
             context = svg.append("g")
             .attr("class", "context")
             .attr("transform", "translate(" + axis.ctrl.coord.x + "," + axis.ctrl.coord.y + ")");
-
-            /*
-            * Renderiza a linha do gráfico de controle
-            */
-/*            context.append("path")
-            .datum($scope.lines)
-            .attr("class", "area")
-            .attr("d", area2);*/
 
             /*
             * Rendereiza a axis X (time) do gráfico de controle
