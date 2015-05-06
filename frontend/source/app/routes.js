@@ -6,7 +6,6 @@ define(['app'], function (app) {
                   .when('/Home', {templateUrl: 'app/view/home/Home.html',controller: 'HomeController'})
                   .when('/LoadFile', {templateUrl: 'app/view/loadfile/LoadFile.html',controller: 'LoadFileController'})
                   .when('/VisSingleLine/:id', {templateUrl: 'app/view/vissingleline/VisSingleLine.html',controller: 'VisSingleLine'})
-                  .when('/VisBubble/:id', {templateUrl: 'app/view/visbubble/VisBubble.html',controller: 'VisBubble'})
                   .when('/VisCircle/:id', {templateUrl: 'app/view/viscircle/VisCircle.html',controller: 'VisCircle'})
 
 
