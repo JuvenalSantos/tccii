@@ -119,5 +119,60 @@ class TweetRepository extends EntityRepository
         return $stmt->fetchAll();
     }
 
+    public function findTweetsEachFiveMinutesByVisualizationMultiLine($visualization){
+        $db = $this->getEntityManager()->getConnection();
+        $sql = "SELECT dateByFiveMinutes(creat_at) AS creat_at, quarterByFiveMinutes(creat_at) AS quarter, sentiment, COUNT(sentiment) AS total
+                FROM Tweet
+                WHERE Visualization_id = :visualization
+                GROUP BY MONTH(creat_at), DAY(creat_at), HOUR(creat_at), sentiment, quarterByFiveMinutes(creat_at)
+                ORDER BY creat_at";
+        $stmt = $db->prepare($sql);
+        $stmt->bindParam(':visualization', $visualization, PDO::PARAM_INT);
+
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+
+    public function findTweetsEachTenMinutesByVisualizationMultiLine($visualization){
+        $db = $this->getEntityManager()->getConnection();
+        $sql = "SELECT dateByTenMinutes(creat_at) AS creat_at, quarterByTenMinutes(creat_at) AS quarter, sentiment, COUNT(sentiment) AS total
+                FROM Tweet
+                WHERE Visualization_id = :visualization
+                GROUP BY MONTH(creat_at), DAY(creat_at), HOUR(creat_at), sentiment, quarterByTenMinutes(creat_at)
+                ORDER BY creat_at";
+        $stmt = $db->prepare($sql);
+        $stmt->bindParam(':visualization', $visualization, PDO::PARAM_INT);
+
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+
+    public function findTweetsEachFifteenMinutesByVisualizationMultiLine($visualization){
+        $db = $this->getEntityManager()->getConnection();
+        $sql = "SELECT dateByFifteenMinutes(creat_at) AS creat_at, quarterByFifteenMinutes(creat_at) AS quarter, sentiment, COUNT(sentiment) AS total
+                FROM Tweet
+                WHERE Visualization_id = :visualization
+                GROUP BY MONTH(creat_at), DAY(creat_at), HOUR(creat_at), sentiment, quarterByFifteenMinutes(creat_at)
+                ORDER BY creat_at";
+        $stmt = $db->prepare($sql);
+        $stmt->bindParam(':visualization', $visualization, PDO::PARAM_INT);
+
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+
+    public function findTweetsEachThirtyMinutesByVisualizationMultiLine($visualization){
+        $db = $this->getEntityManager()->getConnection();
+        $sql = "SELECT dateByThirtyMinutes(creat_at) AS creat_at, quarterByThirtyMinutes(creat_at) AS quarter, sentiment, COUNT(sentiment) AS total
+                FROM Tweet
+                WHERE Visualization_id = :visualization
+                GROUP BY MONTH(creat_at), DAY(creat_at), HOUR(creat_at), sentiment, quarterByThirtyMinutes(creat_at)
+                ORDER BY creat_at";
+        $stmt = $db->prepare($sql);
+        $stmt->bindParam(':visualization', $visualization, PDO::PARAM_INT);
+
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
 
 }

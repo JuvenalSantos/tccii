@@ -2,6 +2,7 @@ define([
 	'./home/HomeController',
 	'./loadfile/LoadFileController',
 	'./vissingleline/VisSingleLine',
+	'./vismultiline/VisMultiLine',
 
 	'./user/UserController',
     './user/UserAddController', 
