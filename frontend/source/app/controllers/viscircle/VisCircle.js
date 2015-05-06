@@ -30,17 +30,16 @@ define(['../module'], function (controllers) {
                 y : canvas.padding
             },
             transition : {
-                duration : 200,
-                ease : 'linear'
+                duration : 100,
+                ease : 'linear',
+                delay : 10
             },
             gradient : {
                 opacity : 0.5
             },
             circles : {
                 rmin : 5,
-                rmax : 50,
-                transition : 100,
-                delay: 10
+                rmax : 50
             }
         };
         
@@ -378,11 +377,13 @@ define(['../module'], function (controllers) {
         function brushedend(){
             x.domain(brush.empty() ? x2.domain() : brush.extent());
             
-            svg.select(".x.axis").call(xAxis);
-            
             focus.selectAll("circle")
-            .transition().duration(visLine.circles.transition).delay(visLine.circles.delay)
+            .transition().duration(visLine.transition.duration).ease(visLine.transition.ease)
             .attr("cx", function(d) { return x(d.creat_at); })
+
+            svg.select(".x.axis")
+            .transition().duration(visLine.transition.duration).ease(visLine.transition.ease)
+            .call(xAxis);
         }
 
         /*

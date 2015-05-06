@@ -31,8 +31,9 @@ define(['../module'], function (controllers) {
                 y : (canvas.height * 0.3)
             },
             transition : {
-                duration : 200,
-                ease : 'linear'
+                duration : 100,
+                ease : 'linear',
+                delay : 10
             },
             gradient : {
                 opacity : 0.5
@@ -434,8 +435,14 @@ define(['../module'], function (controllers) {
         */
         function brushedend(){
             x.domain(brush.empty() ? x2.domain() : brush.extent());
-            focus.select(".area").attr("d", area);
-            svg.select(".x.axis").call(xAxis);
+            
+            focus.select(".area")
+            .transition().duration(visLine.transition.duration).ease(visLine.transition.ease)
+            .attr("d", area);
+
+            svg.select(".x.axis")
+            .transition().duration(visLine.transition.duration).ease(visLine.transition.ease)
+            .call(xAxis);
         }
         
         /*

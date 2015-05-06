@@ -394,10 +394,14 @@ define(['../module'], function (controllers) {
         */
         function brushedend(){
             x.domain(brush.empty() ? x2.domain() : brush.extent());
+
             focus.selectAll(".area-g")
             .transition().duration(visLine.transition.duration).ease(visLine.transition.ease)
             .attr("d", area);
-            svg.select(".x.axis").call(xAxis);
+
+            svg.select(".x.axis")
+            .transition().duration(visLine.transition.duration).ease(visLine.transition.ease)
+            .call(xAxis);
         }
         
         /*
