@@ -14,7 +14,7 @@ define(['../module'], function (controllers) {
         */
         $scope.lines = [];
 
-        var focus, context, area, area2, xAxis, xAxis2, x, x2, y, y2, yAxis, brush, scaleFontColor;
+        var focus, context, area, area2, xAxis, xAxis2, x, x2, y, y2, yAxis, brush, scaleFontColor, subjectLineColor, dataNest;
         
 
         var axis = {
@@ -178,7 +178,7 @@ define(['../module'], function (controllers) {
         * Função responsável por renderizar o gráfico principal a cada atualização de dados
         */
         $scope.renderUpdate = function() {
-           focus.select(".area").remove();
+           focus.select(".area-g").remove();
            svg.select(".x.axis").remove();
            context.select(".area").remove();
            context.select(".x.axis").remove();
@@ -202,7 +202,7 @@ define(['../module'], function (controllers) {
             /*
             * Define as escalas lineares para utilização no eixo Y do gráfico principal e no brush
             */
-            y = d3.scale.linear().range([visLine.height, 0]),
+            y = d3.scale.linear().range([visLine.height-2, 2]),
             y2 = d3.scale.linear().range([canvas.ctrlTime.height, 0]);
 
             /*
@@ -234,6 +234,11 @@ define(['../module'], function (controllers) {
             .rangeRound([visLine.cloudTag.fontSize.min, visLine.cloudTag.fontSize.max]);
 
             /*
+            * Define a escala da palheta de cores a ser utilizada na coloração das linhas
+            */
+            subjectLineColor = d3.scale.category10();
+
+            /*
             * Define a escala da palheta de cores a ser utilizada na Cloud Tag
             * Consulte D3JS Category20 para mais detalhes
             */
@@ -243,7 +248,7 @@ define(['../module'], function (controllers) {
             .rangeRound(["#AFAFAF", "#313131"])
             .interpolate(d3.interpolateHsl)
             ; 
-            
+
             /*
             * Cria a Cloud Tag
             */
@@ -290,7 +295,7 @@ define(['../module'], function (controllers) {
             .attr("width", visLine.width)
             .attr("height", visLine.height)
             .attr("class", "rectGradient")
-            .style("fill", "url(#gradient)")
+            .style("fill", "#F6F6F6")
             .attr("transform", "translate(" + visLine.coord.x + "," + visLine.coord.y + ")");
 
             /*
@@ -326,12 +331,28 @@ define(['../module'], function (controllers) {
             x2.domain(x.domain());
 
             /*
+            * Agrupa os tweets por sentimento
+            */
+            dataNest = d3.nest()
+                .key(function(d) {return d.subject;})
+                .entries($scope.lines);
+
+            // Renderiza linha para cada sentimento
+            dataNest.forEach(function(d, e) {
+                focus.append("path")
+                .datum(d.values)
+                .attr("class", "area-g")
+                .attr("stroke", function(){ return subjectLineColor(e); })
+                .attr("d", area);
+            });
+
+            /*
             * Renderiza a linha do gráfico principal
             */
-            focus.append("path")
+/*            focus.append("path")
             .datum($scope.lines)
             .attr("class", "area")
-            .attr("d", area);
+            .attr("d", area);*/
 
             /*
             * Rendereiza a axis X (time) do gráfico principal
@@ -389,10 +410,10 @@ define(['../module'], function (controllers) {
             /*
             * Renderiza a linha do gráfico de controle
             */
-            context.append("path")
+/*            context.append("path")
             .datum($scope.lines)
             .attr("class", "area")
-            .attr("d", area2);
+            .attr("d", area2);*/
 
             /*
             * Rendereiza a axis X (time) do gráfico de controle
@@ -416,8 +437,6 @@ define(['../module'], function (controllers) {
             .selectAll("rect")
             .attr("y", -canvas.padding)
             .attr("height", canvas.ctrlTime.height + canvas.padding - 1)
-            .on("dblclick", function(){ console.log("click"); })
-            .on('contextmenu',function (d,i){ d3.event.preventDefault(); console.log("click"); })
             ;
         }
 
@@ -436,7 +455,7 @@ define(['../module'], function (controllers) {
         function brushedend(){
             x.domain(brush.empty() ? x2.domain() : brush.extent());
             
-            focus.select(".area")
+            focus.select(".area-g")
             .transition().duration(visLine.transition.duration).ease(visLine.transition.ease)
             .attr("d", area);
 

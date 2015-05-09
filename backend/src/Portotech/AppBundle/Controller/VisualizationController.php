@@ -199,19 +199,19 @@ class VisualizationController extends FOSRestController
 
         switch($aggregation) {
             case '5m':
-                $lines = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsEachFiveMinutesByVisualization($id);
+                $lines = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsEachFiveMinutesByVisualizationSingleLine($id);
                 break;
 
             case '10m':
-                $lines = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsEachTenMinutesByVisualization($id);
+                $lines = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsEachTenMinutesByVisualizationSingleLine($id);
                 break;
 
             case '15m':
-                $lines = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsEachFifteenMinutesByVisualization($id);
+                $lines = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsEachFifteenMinutesByVisualizationSingleLine($id);
                 break;
 
             case '30m':
-                $lines = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsEachThirtyMinutesByVisualization($id);
+                $lines = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsEachThirtyMinutesByVisualizationSingleLine($id);
                 break;
 
             default:

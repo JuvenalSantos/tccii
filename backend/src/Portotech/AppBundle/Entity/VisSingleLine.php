@@ -44,7 +44,11 @@ class VisSingleLine {
     public function setLines($lines){
         $points = array();
         foreach($lines as $point) {
-            $points[] = array('creat_at' => $point['creat_at'], 'y' => $point['media']);
+            $points[] = array(
+                'subject' => $point['subject'],
+                'creat_at' => $point['creat_at'],
+                'y' => $point['media']
+            );
         }
         $this->lines = $points;
     }

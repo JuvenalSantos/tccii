@@ -63,12 +63,12 @@ class TweetRepository extends EntityRepository
     }
 
 
-    public function findTweetsEachFiveMinutesByVisualization($visualization){
+    public function findTweetsEachFiveMinutesByVisualizationSingleLine($visualization){
         $db = $this->getEntityManager()->getConnection();
-        $sql = "SELECT dateByFiveMinutes(creat_at) AS creat_at, quarterByFiveMinutes(creat_at) AS quarter, AVG(sentiment) AS media
+        $sql = "SELECT subject, dateByFiveMinutes(creat_at) AS creat_at, quarterByFiveMinutes(creat_at) AS quarter, AVG(sentiment) AS media
                 FROM Tweet
                 WHERE Visualization_id = :visualization
-                GROUP BY MONTH(creat_at), DAY(creat_at), HOUR(creat_at), quarterByFiveMinutes(creat_at)
+                GROUP BY subject, MONTH(creat_at), DAY(creat_at), HOUR(creat_at), quarterByFiveMinutes(creat_at)
                 ORDER BY creat_at";
         $stmt = $db->prepare($sql);
         $stmt->bindParam(':visualization', $visualization, PDO::PARAM_INT);
@@ -77,12 +77,12 @@ class TweetRepository extends EntityRepository
         return $stmt->fetchAll();
     }
 
-    public function findTweetsEachTenMinutesByVisualization($visualization){
+    public function findTweetsEachTenMinutesByVisualizationSingleLine($visualization){
         $db = $this->getEntityManager()->getConnection();
-        $sql = "SELECT dateByTenMinutes(creat_at) AS creat_at, quarterByTenMinutes(creat_at) AS quarter, AVG(sentiment) AS media
+        $sql = "SELECT subject, dateByTenMinutes(creat_at) AS creat_at, quarterByTenMinutes(creat_at) AS quarter, AVG(sentiment) AS media
                 FROM Tweet
                 WHERE Visualization_id = :visualization
-                GROUP BY MONTH(creat_at), DAY(creat_at), HOUR(creat_at), quarterByTenMinutes(creat_at)
+                GROUP BY subject, MONTH(creat_at), DAY(creat_at), HOUR(creat_at), quarterByTenMinutes(creat_at)
                 ORDER BY creat_at";
         $stmt = $db->prepare($sql);
         $stmt->bindParam(':visualization', $visualization, PDO::PARAM_INT);
@@ -91,12 +91,12 @@ class TweetRepository extends EntityRepository
         return $stmt->fetchAll();
     }
 
-    public function findTweetsEachFifteenMinutesByVisualization($visualization){
+    public function findTweetsEachFifteenMinutesByVisualizationSingleLine($visualization){
         $db = $this->getEntityManager()->getConnection();
-        $sql = "SELECT dateByFifteenMinutes(creat_at) AS creat_at, quarterByFifteenMinutes(creat_at) AS quarter, AVG(sentiment) AS media
+        $sql = "SELECT subject, dateByFifteenMinutes(creat_at) AS creat_at, quarterByFifteenMinutes(creat_at) AS quarter, AVG(sentiment) AS media
                 FROM Tweet
                 WHERE Visualization_id = :visualization
-                GROUP BY MONTH(creat_at), DAY(creat_at), HOUR(creat_at), quarterByFifteenMinutes(creat_at)
+                GROUP BY subject, MONTH(creat_at), DAY(creat_at), HOUR(creat_at), quarterByFifteenMinutes(creat_at)
                 ORDER BY creat_at";
         $stmt = $db->prepare($sql);
         $stmt->bindParam(':visualization', $visualization, PDO::PARAM_INT);
@@ -105,12 +105,12 @@ class TweetRepository extends EntityRepository
         return $stmt->fetchAll();
     }
 
-    public function findTweetsEachThirtyMinutesByVisualization($visualization){
+    public function findTweetsEachThirtyMinutesByVisualizationSingleLine($visualization){
         $db = $this->getEntityManager()->getConnection();
-        $sql = "SELECT dateByThirtyMinutes(creat_at) AS creat_at, quarterByThirtyMinutes(creat_at) AS quarter, AVG(sentiment) AS media
+        $sql = "SELECT subject, dateByThirtyMinutes(creat_at) AS creat_at, quarterByThirtyMinutes(creat_at) AS quarter, AVG(sentiment) AS media
                 FROM Tweet
                 WHERE Visualization_id = :visualization
-                GROUP BY MONTH(creat_at), DAY(creat_at), HOUR(creat_at), quarterByThirtyMinutes(creat_at)
+                GROUP BY subject, MONTH(creat_at), DAY(creat_at), HOUR(creat_at), quarterByThirtyMinutes(creat_at)
                 ORDER BY creat_at";
         $stmt = $db->prepare($sql);
         $stmt->bindParam(':visualization', $visualization, PDO::PARAM_INT);
