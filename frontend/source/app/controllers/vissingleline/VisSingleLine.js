@@ -178,7 +178,7 @@ define(['../module'], function (controllers) {
         * Função responsável por renderizar o gráfico principal a cada atualização de dados
         */
         $scope.renderUpdate = function() {
-           focus.select(".area-g").remove();
+           focus.selectAll(".area-g").remove();
            svg.select(".x.axis").remove();
            context.select(".area").remove();
            context.select(".x.axis").remove();
