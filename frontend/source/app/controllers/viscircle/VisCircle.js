@@ -5,7 +5,7 @@ define(['../module'], function (controllers) {
         $scope.form = {};
 
         //Parametro padrão de agregação para média dos tweets (30 minutos)
-        $scope.form.aggregation = "30m";
+        $scope.form.aggregation = 1;
         $scope.visualization = {};
 
         /*
@@ -13,7 +13,7 @@ define(['../module'], function (controllers) {
         */
         $scope.circles = [];
 
-        var focus, context, area, area2, xAxis, xAxis2, x, x2, y, y2, yAxis, brush, circle, scaleCircleColor, scaleCircleSize;
+        var focus, context, area, area2, xAxis, xAxis2, x, x2, y, y2, yAxis, brush, circle, scaleCircleColor, scaleCircleSize, dataNest;
         
 
         var axis = {
@@ -109,20 +109,8 @@ define(['../module'], function (controllers) {
         */
         $scope.changeAggregation = function() {
             switch($scope.form.aggregation) {
-                case '5m':
-                    TweetFactory.getVisSingleLine({id:$routeParams.id, aggregation: $scope.form.aggregation}, successHandlerChangeAggregation);
-                    break;
-
-                case '10m':
-                    TweetFactory.getVisSingleLine({id:$routeParams.id, aggregation: $scope.form.aggregation}, successHandlerChangeAggregation);
-                    break;
-
-                case '15m':
-                    TweetFactory.getVisSingleLine({id:$routeParams.id, aggregation: $scope.form.aggregation}, successHandlerChangeAggregation);
-                    break;
-
-                case '30m':
-                    TweetFactory.getVisSingleLine({id:$routeParams.id, aggregation: $scope.form.aggregation}, successHandlerChangeAggregation);
+                case 1:
+                case 2:
                     break;
 
                 default:
@@ -264,22 +252,39 @@ define(['../module'], function (controllers) {
             x2.domain(x.domain());
 
             /*
-            * Renderiza a linha do gráfico principal
+            * Agrupa os tweets por data
             */
-            circle = focus.selectAll("circle")
-            .data($scope.circles)
+            dataNest = d3.nest()
+                .key(function(d) {return d.creat_at.getTime();})
+                .key(function(d) {return d.sentiment;})
+                .rollup(function(d) { 
+                    return d3.sum(d, function(g) {return g.total; });
+                })
+                .entries($scope.circles);
+                console.log(dataNest);
 
-            circle.exit().remove();
+            /*
+            * Renderiza os circulos do gráfico principal
+            */
+            if($scope.form.aggregation == 1){
+                circle = focus.selectAll(".gcircle")
+                .data(dataNest)
 
-            circle.enter().append("circle")
-                .attr("fill", function(d) { return scaleCircleColor(d.sentiment); })
-                .attr("r", function(d) { return scaleCircleSize(d.total); })
-                ;
+                circle.enter().append("g")
+                .attr("class", "gcircle")
+                .attr("transform", function(d) { return "translate(" + x(new Date().setTime(d.key)) + "," + 100 + ")"; });
 
-            circle
-                .attr("cx", function(d) { return x(d.creat_at); })
-                .attr("cy", function(d) { return 100; })
-                ;
+                var xcircle = circle.selectAll(".gcircle")
+                    .data(function(d){ return d.values; })
+                    .enter().append("circle")
+                    .attr("fill", function(d) { return scaleCircleColor(d.key); })
+                    .attr("r", function(d) { return scaleCircleSize(d.values); })
+                    ;
+
+                circle.exit().remove();
+            } else {
+
+            }
 
             /*
             * Rendereiza a axis X (time) do gráfico principal
@@ -377,9 +382,10 @@ define(['../module'], function (controllers) {
         function brushedend(){
             x.domain(brush.empty() ? x2.domain() : brush.extent());
             
-            focus.selectAll("circle")
+            focus.selectAll(".gcircle")
             .transition().duration(visLine.transition.duration).ease(visLine.transition.ease)
-            .attr("cx", function(d) { return x(d.creat_at); })
+            //.attr("cx", function(d) { return x(new Date().setTime(d.key)); })
+            .attr("transform", function(d) { return "translate(" + x(new Date().setTime(d.key)) + "," + 100 + ")"; });
 
             svg.select(".x.axis")
             .transition().duration(visLine.transition.duration).ease(visLine.transition.ease)

@@ -46,6 +46,7 @@ class VisCircle {
         foreach($tweets as $tweet) {
             $points[] = array(
                 'creat_at' => $tweet['creat_at'],
+                'subject' => $tweet['subject'],
                 'sentiment' => (int) $tweet['sentiment'],
                 'total' => (int) $tweet['total'],
             );

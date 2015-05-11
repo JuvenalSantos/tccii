@@ -32,29 +32,13 @@
 		</li>
 		<li>
 			<!--<label>Agregação: </label>-->
-		 	<div class="btn-group btn-group-sm" data-ng-if="false">
-				<label class="btn btn-default" ng-model="form.aggregation" ng-change="changeAggregation()" btn-radio="'5m'">
-					<span class="fa fa-clock-o" ></span> 5m
+		 	<div class="btn-group btn-group-sm" data-ng-if="true">
+				<label class="btn btn-default" ng-model="form.aggregation" ng-change="changeAggregation()" btn-radio="1">
+					<span class="fa fa-clock-o" ></span> Agrupado
 				</label>
 
-				<label class="btn btn-default" ng-model="form.aggregation" ng-change="changeAggregation()" btn-radio="'10m'">
-					<span class="fa fa-clock-o"></span> 10m
-				</label>
-
-				<label class="btn btn-default" ng-model="form.aggregation" ng-change="changeAggregation()" btn-radio="'15m'">
-					<span class="fa fa-clock-o"></span> 15m
-				</label>
-
-				<label class="btn btn-default" ng-model="form.aggregation" ng-change="changeAggregation()" btn-radio="'30m'">
-					<span class="fa fa-clock-o"></span> 30m
-				</label>
-
-				<label class="btn btn-default" ng-model="form.aggregation" ng-change="changeAggregation()" btn-radio="'60m'">
-					<span class="fa fa-clock-o"></span> 60m
-				</label>
-
-				<label class="btn btn-default" ng-model="form.aggregation" ng-change="changeAggregation()" btn-radio="'24h'">
-					<span class="fa fa-clock-o"></span> 24h
+				<label class="btn btn-default" ng-model="form.aggregation" ng-change="changeAggregation()" btn-radio="2">
+					<span class="fa fa-clock-o"></span> Por assunto
 				</label>
 			</div>
 		</li>
