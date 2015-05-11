@@ -35,6 +35,10 @@ define(['../module'], function (controllers) {
                 ease : 'linear',
                 delay : 10
             },
+            legend : {
+                width : 150,
+                fontSize: "12px"
+            },
             gradient : {
                 opacity : 0.5
             },
@@ -306,7 +310,9 @@ define(['../module'], function (controllers) {
                 .key(function(d) {return d.sentiment;})
                 .entries($scope.lines);
 
-            // Renderiza linha para cada sentimento
+            /*
+            * Renderiza a linha do gráfico principal para cada sentimento
+            */
             dataNest.forEach(function(d, e) {
                 focus.append("path")
                 .datum(d.values)
@@ -322,6 +328,34 @@ define(['../module'], function (controllers) {
             .attr("class", "x axis")
             .attr("transform", "translate("+ visLine.coord.x +"," + (visLine.coord.y + visLine.height) + ")")
             .call(xAxis);
+
+            /*
+            * Renderiza a legenda do gráfico principal
+            */
+            var legendGroup = svg.append("g")
+            .attr("class", "legendgroup")
+            .attr("transform", "translate("+ ( ((canvas.width)/2) - ((visLine.legend.width * $scope.visualization.sentiments.length)/2) ) +"," + (visLine.coord.y + visLine.height + 30) + ")")
+            ;
+
+            var legend = legendGroup.selectAll(".legend")
+            .data($scope.visualization.sentiments)
+            .enter().append("g")
+                .attr("class", "legend")
+                .attr("transform", function(d, i){ return "translate("+ (visLine.legend.width * i)+",0)"; })
+            ;
+
+            legend.append("rect")
+                .attr("width", 10)
+                .attr("height", 2)
+                .attr("fill", function(d, i) { return scaleLineColor(d.sentiment); })
+            ;
+
+            legend.append("text")
+                .text(function(d) { return d.description; })
+                .style("font-size", visLine.legend.fontSize)
+                .attr("dx", "15px")
+                .attr("dy", ".40em")
+                ;
         }
 
         /*
