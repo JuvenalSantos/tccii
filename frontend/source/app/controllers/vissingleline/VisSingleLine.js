@@ -369,7 +369,7 @@ define(['../module'], function (controllers) {
             */
             var legendGroup = svg.append("g")
             .attr("class", "legendgroup")
-            .attr("transform", "translate("+ ( ( ( (visLine.width-visLine.coord.x) - (visLine.legend.width * axisLabel.length) /2) /2) ) +"," + (visLine.coord.y + visLine.height + 30) + ")")
+            .attr("transform", "translate("+ ( ((canvas.width)/2) - ((visLine.legend.width * axisLabel.length)/2) )  +"," + (visLine.coord.y + visLine.height + 30) + ")")
             ;
 
             var legend = legendGroup.selectAll(".legend")
