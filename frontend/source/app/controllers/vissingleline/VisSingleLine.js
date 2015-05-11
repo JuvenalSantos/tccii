@@ -14,7 +14,7 @@ define(['../module'], function (controllers) {
         */
         $scope.lines = [];
 
-        var focus, context, area, area2, xAxis, xAxis2, x, x2, y, y2, yAxis, brush, scaleFontColor;
+        var focus, context, area, area2, xAxis, xAxis2, x, x2, y, y2, yAxis, brush, scaleFontColor, subjectLineColor, dataNest, axisLabel;
         
 
         var axis = {
@@ -34,6 +34,10 @@ define(['../module'], function (controllers) {
                 duration : 100,
                 ease : 'linear',
                 delay : 10
+            },
+            legend : {
+                width : 150,
+                fontSize: "12px"
             },
             gradient : {
                 opacity : 0.5
@@ -178,7 +182,7 @@ define(['../module'], function (controllers) {
         * Função responsável por renderizar o gráfico principal a cada atualização de dados
         */
         $scope.renderUpdate = function() {
-           focus.select(".area").remove();
+           focus.selectAll(".area-g").remove();
            svg.select(".x.axis").remove();
            context.select(".area").remove();
            context.select(".x.axis").remove();
@@ -202,7 +206,7 @@ define(['../module'], function (controllers) {
             /*
             * Define as escalas lineares para utilização no eixo Y do gráfico principal e no brush
             */
-            y = d3.scale.linear().range([visLine.height, 0]),
+            y = d3.scale.linear().range([visLine.height-2, 2]),
             y2 = d3.scale.linear().range([canvas.ctrlTime.height, 0]);
 
             /*
@@ -234,6 +238,11 @@ define(['../module'], function (controllers) {
             .rangeRound([visLine.cloudTag.fontSize.min, visLine.cloudTag.fontSize.max]);
 
             /*
+            * Define a escala da palheta de cores a ser utilizada na coloração das linhas
+            */
+            subjectLineColor = d3.scale.category10();
+
+            /*
             * Define a escala da palheta de cores a ser utilizada na Cloud Tag
             * Consulte D3JS Category20 para mais detalhes
             */
@@ -243,7 +252,7 @@ define(['../module'], function (controllers) {
             .rangeRound(["#AFAFAF", "#313131"])
             .interpolate(d3.interpolateHsl)
             ; 
-            
+
             /*
             * Cria a Cloud Tag
             */
@@ -290,7 +299,7 @@ define(['../module'], function (controllers) {
             .attr("width", visLine.width)
             .attr("height", visLine.height)
             .attr("class", "rectGradient")
-            .style("fill", "url(#gradient)")
+            .style("fill", "#F6F6F6")
             .attr("transform", "translate(" + visLine.coord.x + "," + visLine.coord.y + ")");
 
             /*
@@ -326,12 +335,26 @@ define(['../module'], function (controllers) {
             x2.domain(x.domain());
 
             /*
-            * Renderiza a linha do gráfico principal
+            * Agrupa os tweets por sentimento
             */
-            focus.append("path")
-            .datum($scope.lines)
-            .attr("class", "area")
-            .attr("d", area);
+            dataNest = d3.nest()
+                .key(function(d) {return d.subject;})
+                .entries($scope.lines);
+
+            axisLabel = [];
+
+            /*
+            * Renderiza a linha do gráfico principal para cada assunto
+            */
+            dataNest.forEach(function(d, e) {
+                axisLabel.push(d.key);
+
+                focus.append("path")
+                .datum(d.values)
+                .attr("class", "area-g")
+                .attr("stroke", function(){ return subjectLineColor(e); })
+                .attr("d", area);
+            });
 
             /*
             * Rendereiza a axis X (time) do gráfico principal
@@ -340,17 +363,42 @@ define(['../module'], function (controllers) {
             .attr("class", "x axis")
             .attr("transform", "translate("+ visLine.coord.x +"," + (visLine.coord.y + visLine.height) + ")")
             .call(xAxis);
+
+            /*
+            * Renderiza a legenda do gráfico principal
+            */
+            var legendGroup = svg.append("g")
+            .attr("class", "legendgroup")
+            .attr("transform", "translate("+ ( ( ( (visLine.width-visLine.coord.x) - (visLine.legend.width * axisLabel.length) /2) /2) ) +"," + (visLine.coord.y + visLine.height + 30) + ")")
+            ;
+
+            var legend = legendGroup.selectAll(".legend")
+            .data(axisLabel)
+            .enter().append("g")
+                .attr("class", "legend")
+                .attr("transform", function(d, i){ return "translate("+ (visLine.legend.width * i)+",0)"; })
+            ;
+
+            legend.append("rect")
+                .attr("width", 10)
+                .attr("height", 2)
+                .attr("fill", function(d, i) { return subjectLineColor(i); })
+            ;
+
+            legend.append("text")
+                .text(function(d) { return d; })
+                .style("font-size", visLine.legend.fontSize)
+                .attr("dx", "15px")
+                .attr("dy", ".40em")
+                ;
+
         }
+
 
         /*
         * Função responsável por renderizar a escalade sentimento textual (Axis Y)
         */
         function renderFocusSentimentScale() {
-            /*
-            * Lista contendo as descrições da escala de sentimentos 
-            */
-            //var sentimentos = $scope.visualization.sentiments; //['Ótimo', 'Muito bom', 'Bom', 'Médio', 'Ruim', 'Péssimo'];
-
             /*
             * Define uma escala ordinal de sentimentos para ser utilizada no gráfico principal
             */           
@@ -387,12 +435,14 @@ define(['../module'], function (controllers) {
             .attr("transform", "translate(" + axis.ctrl.coord.x + "," + axis.ctrl.coord.y + ")");
 
             /*
-            * Renderiza a linha do gráfico de controle
+            * Renderiza a linha do gráfico de controle se tiver apenas um assunto
             */
-            context.append("path")
-            .datum($scope.lines)
-            .attr("class", "area")
-            .attr("d", area2);
+            if( axisLabel.length < 2 ) {
+                context.append("path")
+                .datum($scope.lines)
+                .attr("class", "area")
+                .attr("d", area2);
+            }
 
             /*
             * Rendereiza a axis X (time) do gráfico de controle
@@ -416,8 +466,6 @@ define(['../module'], function (controllers) {
             .selectAll("rect")
             .attr("y", -canvas.padding)
             .attr("height", canvas.ctrlTime.height + canvas.padding - 1)
-            .on("dblclick", function(){ console.log("click"); })
-            .on('contextmenu',function (d,i){ d3.event.preventDefault(); console.log("click"); })
             ;
         }
 
@@ -436,7 +484,7 @@ define(['../module'], function (controllers) {
         function brushedend(){
             x.domain(brush.empty() ? x2.domain() : brush.extent());
             
-            focus.select(".area")
+            focus.selectAll(".area-g")
             .transition().duration(visLine.transition.duration).ease(visLine.transition.ease)
             .attr("d", area);
 
