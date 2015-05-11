@@ -14,7 +14,7 @@ define(['../module'], function (controllers) {
         */
         $scope.lines = [];
 
-        var focus, context, area, area2, xAxis, xAxis2, x, x2, y, y2, yAxis, brush, scaleFontColor, subjectLineColor, dataNest;
+        var focus, context, area, area2, xAxis, xAxis2, x, x2, y, y2, yAxis, brush, scaleFontColor, subjectLineColor, dataNest, axisLabel;
         
 
         var axis = {
@@ -34,6 +34,10 @@ define(['../module'], function (controllers) {
                 duration : 100,
                 ease : 'linear',
                 delay : 10
+            },
+            legend : {
+                width : 150,
+                fontSize: "12px"
             },
             gradient : {
                 opacity : 0.5
@@ -337,8 +341,14 @@ define(['../module'], function (controllers) {
                 .key(function(d) {return d.subject;})
                 .entries($scope.lines);
 
-            // Renderiza linha para cada sentimento
+            axisLabel = [];
+
+            /*
+            * Renderiza a linha do gráfico principal para cada assunto
+            */
             dataNest.forEach(function(d, e) {
+                axisLabel.push(d.key);
+
                 focus.append("path")
                 .datum(d.values)
                 .attr("class", "area-g")
@@ -347,31 +357,48 @@ define(['../module'], function (controllers) {
             });
 
             /*
-            * Renderiza a linha do gráfico principal
-            */
-/*            focus.append("path")
-            .datum($scope.lines)
-            .attr("class", "area")
-            .attr("d", area);*/
-
-            /*
             * Rendereiza a axis X (time) do gráfico principal
             */
             svg.append("g")
             .attr("class", "x axis")
             .attr("transform", "translate("+ visLine.coord.x +"," + (visLine.coord.y + visLine.height) + ")")
             .call(xAxis);
+
+            /*
+            * Renderiza a legenda do gráfico principal
+            */
+            var legendGroup = svg.append("g")
+            .attr("class", "legendgroup")
+            .attr("transform", "translate("+ ( ( ( (visLine.width-visLine.coord.x) - (visLine.legend.width * axisLabel.length) /2) /2) ) +"," + (visLine.coord.y + visLine.height + 30) + ")")
+            ;
+
+            var legend = legendGroup.selectAll(".legend")
+            .data(axisLabel)
+            .enter().append("g")
+                .attr("class", "legend")
+                .attr("transform", function(d, i){ return "translate("+ (visLine.legend.width * i)+",0)"; })
+            ;
+
+            legend.append("rect")
+                .attr("width", 10)
+                .attr("height", 2)
+                .attr("fill", function(d, i) { return subjectLineColor(i); })
+            ;
+
+            legend.append("text")
+                .text(function(d) { return d; })
+                .style("font-size", visLine.legend.fontSize)
+                .attr("dx", "15px")
+                .attr("dy", ".40em")
+                ;
+
         }
+
 
         /*
         * Função responsável por renderizar a escalade sentimento textual (Axis Y)
         */
         function renderFocusSentimentScale() {
-            /*
-            * Lista contendo as descrições da escala de sentimentos 
-            */
-            //var sentimentos = $scope.visualization.sentiments; //['Ótimo', 'Muito bom', 'Bom', 'Médio', 'Ruim', 'Péssimo'];
-
             /*
             * Define uma escala ordinal de sentimentos para ser utilizada no gráfico principal
             */           
@@ -408,12 +435,14 @@ define(['../module'], function (controllers) {
             .attr("transform", "translate(" + axis.ctrl.coord.x + "," + axis.ctrl.coord.y + ")");
 
             /*
-            * Renderiza a linha do gráfico de controle
+            * Renderiza a linha do gráfico de controle se tiver apenas um assunto
             */
-/*            context.append("path")
-            .datum($scope.lines)
-            .attr("class", "area")
-            .attr("d", area2);*/
+            if( axisLabel.length < 2 ) {
+                context.append("path")
+                .datum($scope.lines)
+                .attr("class", "area")
+                .attr("d", area2);
+            }
 
             /*
             * Rendereiza a axis X (time) do gráfico de controle
@@ -455,7 +484,7 @@ define(['../module'], function (controllers) {
         function brushedend(){
             x.domain(brush.empty() ? x2.domain() : brush.extent());
             
-            focus.select(".area-g")
+            focus.selectAll(".area-g")
             .transition().duration(visLine.transition.duration).ease(visLine.transition.ease)
             .attr("d", area);
 
