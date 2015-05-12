@@ -166,7 +166,7 @@ define(['../module'], function (controllers) {
             /*
             * Define as escalas de tempos para utilização no eixo X do gráfico principal e no brush
             */
-            x = d3.time.scale().range([0, visLine.width]),
+            x = d3.time.scale().range([(0+visLine.circles.rmax), (visLine.width-visLine.circles.rmax)]),
             x2 = d3.time.scale().range([0, visLine.width]);
 
             /*
@@ -248,12 +248,6 @@ define(['../module'], function (controllers) {
             renderContext();
         }
 
-        var pack = d3.layout.pack()
-            .size([(visLine.circles.rmax*2), (visLine.circles.rmax*2)])
-            .padding(5)
-            ;
-
-
         /*
         * Função responsável por renderizar o gráfico de principal
         */
@@ -313,7 +307,7 @@ define(['../module'], function (controllers) {
                         if( i == 0 )
                             ra += scaleCircleSize(e.value) + 2;
                         else {
-                            ra += ( scaleCircleSize(e.value) * 2 ) + 2;
+                            ra += (scaleCircleSize(e.value) * 2 ) + 2;
                         }
                     });
                     return d;
