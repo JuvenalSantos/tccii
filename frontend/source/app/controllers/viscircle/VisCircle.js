@@ -43,6 +43,10 @@ define(['../module'], function (controllers) {
                 rmax : 30,
                 padding: 2,
                 height: 100
+            },
+            forceLayout : {
+                width: canvas.width * 0.9,
+                height: canvas.height * 0.9
             }
         };
         
@@ -351,9 +355,10 @@ define(['../module'], function (controllers) {
                         .friction(0.3)
                         .gravity(0.05)
                         .charge(-15)
-                        .size([700, 600])
+                        .size([visLine.forceLayout.width, visLine.forceLayout.height])
                         ;
-                force.start();
+            force.start();
+            
             modal = svg.append("svg:rect")
                     .attr("width", canvas.width)
                     .attr("height", canvas.height)
@@ -363,7 +368,7 @@ define(['../module'], function (controllers) {
             gnodes = svg.append("g")
                 .attr("class", "gtcircle")
                 .attr("fill", "#fff")
-                .attr("transform", "translate("+ (canvas.width/3) +", 50)")
+                .attr("transform", "translate("+ ((canvas.width-visLine.forceLayout.width)/2) +", 30)")
                 ;
 
 /*            var nodes = gnodes.selectAll(".tcircle")
