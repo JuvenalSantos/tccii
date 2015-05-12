@@ -14,7 +14,7 @@ define(['../module'], function (controllers) {
         */
         $scope.circles = [];
 
-        var focus, context, area, area2, xAxis, xAxis2, x, x2, y, y2, yAxis, brush, circle, scaleCircleColor, scaleCircleSize, dataNest, modal, gnodes;
+        var focus, context, area, area2, xAxis, xAxis2, x, x2, y, y2, yAxis, brush, circle, scaleCircleColor, scaleCircleSize, dataNest, modal, gnodes, tooltip;
         
 
         var axis = {
@@ -151,6 +151,18 @@ define(['../module'], function (controllers) {
         * Função responsável por inicializar os elementos necessários para renderização da visualização
         */
        function initVisCircle() {
+            /*
+            * Define o tooltip a ser utlizado na visualização do conteúdo do Tweet
+            */
+            tooltip = d3.tip()
+            .attr("class", "d3-tip")
+            .attr("color", "red")
+            .offset([-10, 0])
+            .html(function(d) {
+                return "<span>" + d.tweet + "</span>";
+            });
+            svg.call(tooltip);
+
             /*
             * Define as escalas de tempos para utilização no eixo X do gráfico principal e no brush
             */
@@ -386,7 +398,10 @@ define(['../module'], function (controllers) {
                 .attr("r", function(d) { return scaleCircleTweetSize(d.retweets); })
                 .style("fill", function(d,i) { return scaleCircleColor(d.sentiment); })
                 .call(force.drag)
+                .on('mouseover', tooltip.show)
+                .on('mouseout', tooltip.hide)
                 ;
+
                 force.on("tick", function() {
                     nodes
                     .attr("cx", function(d) { return d.x; })

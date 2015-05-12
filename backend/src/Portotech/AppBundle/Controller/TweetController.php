@@ -152,9 +152,9 @@ class TweetController extends FOSRestController
 
         $lines = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsEachHourBySentimentByVisualizationByTimestamp($id, $timestamp);
 
-        $visCircle->setTCircles($lines);
+        $visCircle->setTweetCircles($lines);
 
-        return $this->view($visCircle->getTCircles());
+        return $this->view($visCircle->getTweetCircles());
     }
 
     /**
