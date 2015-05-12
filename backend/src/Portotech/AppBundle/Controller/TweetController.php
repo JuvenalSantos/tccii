@@ -3,6 +3,7 @@
 namespace Portotech\AppBundle\Controller;
 
 use JMS\Serializer\SerializationContext;
+use Portotech\AppBundle\Entity\VisCircle;
 use Portotech\AppBundle\Entity\VisMultiLine;
 use Portotech\AppBundle\Entity\VisSingleLine;
 use Symfony\Component\HttpFoundation\Request;
@@ -124,6 +125,36 @@ class TweetController extends FOSRestController
         $visMultiLine->setLines($lines);
 
         return $this->view($visMultiLine->getLines());
+    }
+
+    /**
+     * Lists all Tweet entities by Visualization (Circle) timestamp.
+     *
+     * @ApiDoc(
+     *     section = "02 - Tweet",
+     *     statusCodes={
+     *         200="Returned when successful",
+     *     }
+     * )
+     * @Rest\Get("/viscircle/{id}/{timestamp}", name="tweets_by_visualization_timestamp_circle")
+     */
+    public function tweetsByVisualizationTimestampCircleAction($id, $timestamp)
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $visualization = $em->getRepository('PortotechAppBundle:Visualization')->find($id);
+
+        if (!$visualization) {
+            throw $this->createNotFoundException('Unable to find Visualization entity.');
+        }
+
+        $visCircle = new VisCircle($visualization);
+
+        $lines = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsEachHourBySentimentByVisualizationByTimestamp($id, $timestamp);
+
+        $visCircle->setTCircles($lines);
+
+        return $this->view($visCircle->getTCircles());
     }
 
     /**

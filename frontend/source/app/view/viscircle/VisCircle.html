@@ -1,5 +1,5 @@
 <div class="pull-left">
-	<ul class="list-inline">
+	<ul class="list-inline" data-ng-if="!modalOpen">
 		<li>
 		    <div class="btn-group btn-group-sm">
 				<a class="btn btn-default" href="#/VisSingleLine/{{visualization.id}}">
@@ -19,7 +19,7 @@
 </div>
 
 <div class="pull-right">
-	<ul class="list-inline">
+	<ul class="list-inline" data-ng-if="!modalOpen">
 		<li>
 			<label class="btn btn-default btn-sm active" tooltip="Arquivo de dados da visualização">
 				<span class="fa fa-file-text-o"></span> {{visualization.name}}
@@ -44,6 +44,14 @@
 		</li>
 		<li>
 			<label class="btn btn-default btn-sm" ng-click="clearBrushSelection()" tooltip="Limpa o intervalo de tempo selecionado"><span class="fa fa-eraser"></span> Limpar seleção</label>
+		</li>
+	</ul>
+	<div class="clearfix"></div>
+	<ul class="list-inline" data-ng-if="modalOpen">
+		<li>
+			<label class="btn btn-default btn-sm" tooltip="Fechar" data-ng-click="closeModal();">
+				<span class="fa fa-close"></span> Fechar
+			</label>
 		</li>
 	</ul>
 </div>

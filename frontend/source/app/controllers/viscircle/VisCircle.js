@@ -7,13 +7,14 @@ define(['../module'], function (controllers) {
         //Parametro padrão de agregação para média dos tweets (30 minutos)
         $scope.form.aggregation = 1;
         $scope.visualization = {};
+        $scope.modalOpen = false;
 
         /*
         * Lista com os pontos a serem renderizados nos gráficos
         */
         $scope.circles = [];
 
-        var focus, context, area, area2, xAxis, xAxis2, x, x2, y, y2, yAxis, brush, circle, scaleCircleColor, scaleCircleSize, dataNest;
+        var focus, context, area, area2, xAxis, xAxis2, x, x2, y, y2, yAxis, brush, circle, scaleCircleColor, scaleCircleSize, dataNest, modal, gnodes;
         
 
         var axis = {
@@ -38,8 +39,10 @@ define(['../module'], function (controllers) {
                 opacity : 0.5
             },
             circles : {
-                rmin : 5,
-                rmax : 50
+                rmin : 3,
+                rmax : 30,
+                padding: 2,
+                height: 100
             }
         };
         
@@ -233,6 +236,12 @@ define(['../module'], function (controllers) {
             renderContext();
         }
 
+        var pack = d3.layout.pack()
+            .size([(visLine.circles.rmax*2), (visLine.circles.rmax*2)])
+            .padding(5)
+            ;
+
+
         /*
         * Função responsável por renderizar o gráfico de principal
         */
@@ -260,25 +269,53 @@ define(['../module'], function (controllers) {
                 .rollup(function(d) { 
                     return d3.sum(d, function(g) {return g.total; });
                 })
-                .entries($scope.circles);
-                console.log(dataNest);
+                .entries($scope.circles)
+                .map(function(d){
+                    var key = d.key
+                    var children = d.values.map(function(dd){
+                        var key = +dd.key
+
+                        return {'key':key, 'value': dd.values}
+                    })
+                    return {'key':key, 'value': (visLine.circles.rmax*2), 'children':children.sort(function(a,b){ return d3.descending(a.value, b.value); })}
+                })
+                ;
 
             /*
             * Renderiza os circulos do gráfico principal
             */
             if($scope.form.aggregation == 1){
                 circle = focus.selectAll(".gcircle")
-                .data(dataNest)
+                .data(dataNest);
 
                 circle.enter().append("g")
                 .attr("class", "gcircle")
-                .attr("transform", function(d) { return "translate(" + x(new Date().setTime(d.key)) + "," + 100 + ")"; });
+                .attr("transform", function(d, i) { return "translate(" + x(new Date().setTime(d.key)) + "," + (visLine.circles.height) + ")"; });
+
+                circle.selectAll(".gcircle")
+                .data(function(d){
+                    var ra = 0;
+                    d.children.map(function(e, i){
+                        e.parent = d.key/1000;
+                        e.ra = ra;
+                        if( i == 0 )
+                            ra += scaleCircleSize(e.value) + 2;
+                        else {
+                            ra += ( scaleCircleSize(e.value) * 2 ) + 2;
+                        }
+                    });
+                    return d;
+                });
 
                 var xcircle = circle.selectAll(".gcircle")
-                    .data(function(d){ return d.values; })
+                    .data(function(d){ return d.children; })
                     .enter().append("circle")
                     .attr("fill", function(d) { return scaleCircleColor(d.key); })
-                    .attr("r", function(d) { return scaleCircleSize(d.values); })
+                    .attr("r", function(d) { return scaleCircleSize(d.value); })
+                    .attr("transform", function(d, i) { return "translate(" + 0 + "," + (i == 0 ? 0 : (scaleCircleSize(d.value) + d.ra)) + ")"; })
+                    .on("click", function(d) {
+                        TweetFactory.getVisCircleTweets({id:$routeParams.id, timestamp: d.parent}, successHandlerTweetsByHour);
+                    })
                     ;
 
                 circle.exit().remove();
@@ -293,6 +330,70 @@ define(['../module'], function (controllers) {
             .attr("class", "x axis")
             .attr("transform", "translate("+ visLine.coord.x +"," + (visLine.coord.y + visLine.height) + ")")
             .call(xAxis);
+        }
+
+        function successHandlerTweetsByHour(tweets) {
+            $scope.modalOpen = true;
+
+            var scaleCircleTweetSize = d3.scale.linear()
+            .domain(d3.extent(tweets, function(d){ return d.retweets; }))
+            .rangeRound([visLine.circles.rmin, visLine.circles.rmax])
+            ;
+
+            var force = d3.layout.force()
+                        .nodes(tweets)
+                        .friction(0.3)
+                        .gravity(0.05)
+                        .charge(-15)
+                        .size([700, 600])
+                        ;
+                force.start();
+            modal = svg.append("svg:rect")
+                    .attr("width", canvas.width)
+                    .attr("height", canvas.height)
+                    .style("fill", "#fff")
+                    .style("opacity", .98);
+
+            gnodes = svg.append("g")
+                .attr("class", "gtcircle")
+                .attr("fill", "#fff")
+                .attr("transform", "translate("+ (canvas.width/3) +", 50)")
+                ;
+
+/*            var nodes = gnodes.selectAll(".tcircle")
+                    .data(tweets)
+                    .enter()
+                    .append("circle")
+                    .attr("class", "tcircle")
+                    .attr("r", function(d) { return scaleCircleTweetSize(d.retweets); })
+                    .style("fill", function(d,i) { return scaleCircleColor(d.sentiment); })
+                    .call(force.drag)
+                    ;
+ */               
+
+            setTimeout(function() {
+              force.start();
+              var n = tweets.length;
+              for (var i = n * n; i > 0; --i) force.tick();
+              force.stop();
+
+              var nodes = gnodes.selectAll(".tcircle")
+                .data(tweets)
+                .enter().append("circle")
+                .attr("class", "tcircle")
+                .attr("cx", function(d) { return d.x; })
+                .attr("cy", function(d) { return d.y; })
+                .attr("r", function(d) { return scaleCircleTweetSize(d.retweets); })
+                .style("fill", function(d,i) { return scaleCircleColor(d.sentiment); })
+                .call(force.drag)
+                ;
+                force.on("tick", function() {
+                    nodes
+                    .attr("cx", function(d) { return d.x; })
+                    .attr("cy", function(d) { return d.y; })
+                });
+            }, 10);
+
         }
 
         /*
@@ -398,6 +499,12 @@ define(['../module'], function (controllers) {
         $scope.clearBrushSelection = function() {
             d3.selectAll("g.brush").call(brush.clear());
             brushedend();
+        }
+
+        $scope.closeModal = function() {
+            modal.remove();
+            gnodes.remove();
+            $scope.modalOpen = false;
         }
 
     }
