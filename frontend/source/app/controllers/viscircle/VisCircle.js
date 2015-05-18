@@ -163,7 +163,7 @@ define(['../module'], function (controllers) {
             .attr("color", "red")
             .offset([-10, 0])
             .html(function(d) {
-                return "<span>" + d.tweet + "</span>";
+                return "<span>Followers: <strong>" + d.retweets + "</strong>. Tweet: " + d.tweet + "</span>";
             });
             svg.call(tooltip);
 
