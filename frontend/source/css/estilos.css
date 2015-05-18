@@ -669,3 +669,10 @@ circle {
   top: 100%;
   left: 0;
 }
+
+.circleLegend {
+	fill: #DDD;
+	fill-opacity: 0.9;
+	stroke: #000;
+	stroke-width: .5px;
+}

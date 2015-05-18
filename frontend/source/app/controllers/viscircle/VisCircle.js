@@ -35,6 +35,10 @@ define(['../module'], function (controllers) {
                 ease : 'linear',
                 delay : 10
             },
+            legend : {
+                width : 150,
+                fontSize: "12px"
+            },
             gradient : {
                 opacity : 0.5
             },
@@ -45,7 +49,7 @@ define(['../module'], function (controllers) {
                 height: 100
             },
             forceLayout : {
-                width: canvas.width * 0.8,
+                width: canvas.width * 0.9,
                 height: canvas.height * 0.8
             }
         };
@@ -226,7 +230,7 @@ define(['../module'], function (controllers) {
             .interpolate(d3.interpolateHsl)
             ; 
 
-            scaleCircleSize = d3.scale.linear()
+            scaleCircleSize = d3.scale.sqrt()
             .domain(d3.extent($scope.circles, function(d){ return d.total; }))
             .rangeRound([visLine.circles.rmin, visLine.circles.rmax])
             ;
@@ -397,12 +401,12 @@ define(['../module'], function (controllers) {
                     .attr("width", canvas.width)
                     .attr("height", canvas.height)
                     .style("fill", "#fff")
-                    .style("opacity", .98);
+                    .style("opacity", .99);
 
             gnodes = svg.append("g")
                 .attr("class", "gtcircle")
                 .attr("fill", "#fff")
-                .attr("transform", "translate("+ ((canvas.width-visLine.forceLayout.width)/2) +", 0)")
+                .attr("transform", "translate("+ ((canvas.width-visLine.forceLayout.width)/2) +", "+ (visLine.circles.rmax + 10) +")")
                 ;
 
             tcircles = gnodes.selectAll(".tcircle")
@@ -423,31 +427,99 @@ define(['../module'], function (controllers) {
 
             force.start();
 
-/*            setTimeout(function() {
-              force.start();
-              var n = tweets.length;
-              for (var i = n * n; i > 0; --i) force.tick();
-              force.stop();
+            renderLegend();
+        }
 
-              var nodes = gnodes.selectAll(".tcircle")
-                .data(tweets)
-                .enter().append("circle")
-                .attr("class", "tcircle")
-                .attr("cx", function(d) { return d.x; })
-                .attr("cy", function(d) { return d.y; })
-                .attr("r", function(d) { return scaleCircleTweetSize(d.retweets); })
-                .style("fill", function(d,i) { return scaleCircleColor(d.sentiment); })
-                .call(force.drag)
-                .on('mouseover', tooltip.show)
-                .on('mouseout', tooltip.hide)
+        function renderLegend() {
+            /*
+            * Renderiza a legenda do gráfico de Tweets
+            */
+
+            var gScaleSizes = 0;
+            var sizes = [
+                scaleCircleTweetSize.domain()[0],
+                Math.floor(scaleCircleTweetSize.domain()[1]/2),
+                scaleCircleTweetSize.domain()[1]
+            ];
+
+            var gLegendTweets = svg.append("g")
+                .attr("class", "g-legend-tweets")
+                .attr("transform", "translate(20, 0)");
+
+            var gScaleTexts = gLegendTweets.append("g")
+                .attr("class", "g-legend-tweets-texts");
+
+            var scaleTexts = gScaleTexts.append("text")    
+                .attr("x", 20)
+                .attr("y", visLine.circles.rmax + 10)
+                .style("text-anchor", "start");
+
+            scaleTexts.append("tspan")
+                .style("font-color", "#777")
+                .style("fill", "#777")
+                .text("Followers do autor do tweet: ");
+                
+            gLegendTweets.attr("transform", function(d){ gScaleSizes = this.getBBox().width + 20; return "translate(0,0)"; });
+
+            var gScaleCircles = gLegendTweets.append("g")
+                .attr("class", "g-legend-tweets-circles");
+
+            var scaleCircles = gScaleCircles.selectAll("g")
+                .data(sizes)
+                .enter().append("g")
+                .attr("class", "g-followers");
+
+            scaleCircles.append("circle")
+                .attr("class", "circleLegend")
+                .attr("r", scaleCircleTweetSize);
+
+            scaleCircles.append("text")
+                .attr("x", function(d) { return scaleCircleTweetSize(d) + 4; })
+                .attr("dy", ".35em")
+                .text(function(d) { return d; });
+
+            scaleCircles.attr("transform", function(d) {
+                var y = visLine.circles.rmax + 5;
+                var t = "translate(" + (gScaleSizes + 20) + ", "+ y +")";
+                gScaleSizes += this.getBBox().width + y;
+                return t;
+            });
+
+            var gScaleSentiments = gLegendTweets.append("text")    
+                .attr("x", gScaleSizes)
+                .attr("y", visLine.circles.rmax + 10)
+                .style("text-anchor", "start");
+
+            gScaleSentiments.append("tspan")
+                .style("font-color", "#777")
+                .style("fill", "#777")
+                .text("Sentimentos: ");
+
+            gLegendTweets.attr("transform", function(d){ gScaleSizes = this.getBBox().width + 30; return "translate(0,0)"; });
+
+            var legendGroup = gLegendTweets.append("g")
+            .attr("class", "legendgroup")
+            .attr("transform", "translate("+ ( gScaleSizes + 15 ) +"," + (visLine.circles.rmax + 5) + ")")
+            ;
+
+            var legend = legendGroup.selectAll(".legend")
+            .data($scope.visualization.sentiments)
+            .enter().append("g")
+                .attr("class", "legend")
+                .attr("transform", function(d, i){ return "translate("+ (visLine.legend.width * i)+", 0)"; })
+            ;
+
+            legend.append("circle")
+                .attr("r", 7)
+                .attr("fill", function(d, i) { return scaleCircleColor(d.sentiment); })
+            ;
+
+            legend.append("text")
+                .text(function(d) { return d.description; })
+                .style("font-size", visLine.legend.fontSize)
+                .attr("dx", "15px")
+                .attr("dy", ".40em")
                 ;
-
-                force.on("tick", function() {
-                    nodes
-                    .attr("cx", function(d) { return d.x; })
-                    .attr("cy", function(d) { return d.y; })
-                });
-            }, 10);*/
 
         }
 
