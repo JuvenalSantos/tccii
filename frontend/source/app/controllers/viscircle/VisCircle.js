@@ -368,7 +368,7 @@ define(['../module'], function (controllers) {
             gnodes = svg.append("g")
                 .attr("class", "gtcircle")
                 .attr("fill", "#fff")
-                .attr("transform", "translate("+ ((canvas.width-visLine.forceLayout.width)/2) +", 30)")
+                .attr("transform", "translate("+ ((canvas.width-visLine.forceLayout.width)/2) +", 0)")
                 ;
 
 /*            var nodes = gnodes.selectAll(".tcircle")
