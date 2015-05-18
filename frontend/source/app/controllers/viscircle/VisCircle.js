@@ -14,7 +14,7 @@ define(['../module'], function (controllers) {
         */
         $scope.circles = [];
 
-        var focus, context, area, area2, xAxis, xAxis2, x, x2, y, y2, yAxis, brush, circle, scaleCircleColor, scaleCircleSize, dataNest, modal, gnodes, tooltip;
+        var focus, context, area, area2, xAxis, xAxis2, x, x2, y, y2, yAxis, brush, circle, scaleCircleColor, scaleCircleSize, dataNest, modal, gnodes, tooltip, foci, tcircles, tweetsByHour, scaleCircleTweetSize;
         
 
         var axis = {
@@ -45,8 +45,8 @@ define(['../module'], function (controllers) {
                 height: 100
             },
             forceLayout : {
-                width: canvas.width * 0.9,
-                height: canvas.height * 0.9
+                width: canvas.width * 0.8,
+                height: canvas.height * 0.8
             }
         };
         
@@ -151,10 +151,22 @@ define(['../module'], function (controllers) {
             brushedend();
         }
 
+        function initFoci(){
+            foci = [];
+            var x = 0;
+            var portion = visLine.forceLayout.width/(2 + ($scope.visualization.sentiments.length-1))
+            $scope.visualization.sentiments.forEach(function(e){
+                x += portion;
+                foci[e.sentiment] = {x: x, y: visLine.forceLayout.height/2};  
+                
+            });           
+        }
+
         /*
         * Função responsável por inicializar os elementos necessários para renderização da visualização
         */
        function initVisCircle() {
+            initFoci();
             /*
             * Define o tooltip a ser utlizado na visualização do conteúdo do Tweet
             */
@@ -342,22 +354,44 @@ define(['../module'], function (controllers) {
             .call(xAxis);
         }
 
+        function forceCharge(d){
+            var size = scaleCircleTweetSize(d.retweets);
+            size = size < 4 ? 4 : size;
+
+            return -(Math.pow((size * 1.45), 2));
+        }
+
+        function forceTick(e) {
+          var k = 1.2 * e.alpha;
+          tweetsByHour.forEach(function(o, i) {
+            o.y += (foci[o.sentiment].y - o.y) * k;
+            o.x += (foci[o.sentiment].x - o.x) * k;
+          });
+
+          tcircles
+              .attr("cx", function(d) { return d.x; })
+              .attr("cy", function(d) { return d.y; });
+        }
+
         function successHandlerTweetsByHour(tweets) {
+            tweetsByHour = tweets;
             $scope.modalOpen = true;
 
-            var scaleCircleTweetSize = d3.scale.linear()
+            scaleCircleTweetSize = d3.scale.linear()
             .domain(d3.extent(tweets, function(d){ return d.retweets; }))
             .rangeRound([visLine.circles.rmin, visLine.circles.rmax])
             ;
 
             var force = d3.layout.force()
                         .nodes(tweets)
-                        .friction(0.3)
-                        .gravity(0.05)
-                        .charge(-15)
+                        //.friction(0.9)
+                        //.gravity(0)
+                        .charge(forceCharge)
+                        //.alpha(0)
                         .size([visLine.forceLayout.width, visLine.forceLayout.height])
                         ;
-            force.start();
+
+            //force.start();
             
             modal = svg.append("svg:rect")
                     .attr("width", canvas.width)
@@ -371,18 +405,25 @@ define(['../module'], function (controllers) {
                 .attr("transform", "translate("+ ((canvas.width-visLine.forceLayout.width)/2) +", 0)")
                 ;
 
-/*            var nodes = gnodes.selectAll(".tcircle")
+            tcircles = gnodes.selectAll(".tcircle")
                     .data(tweets)
                     .enter()
                     .append("circle")
                     .attr("class", "tcircle")
                     .attr("r", function(d) { return scaleCircleTweetSize(d.retweets); })
+                    .attr("cx", function(d){ return d.x; })
+                    .attr("cy", function(d){ return d.y; })
                     .style("fill", function(d,i) { return scaleCircleColor(d.sentiment); })
                     .call(force.drag)
+                    .on('mouseover', tooltip.show)
+                    .on('mouseout', tooltip.hide)
                     ;
- */               
 
-            setTimeout(function() {
+            force.on("tick", forceTick);
+
+            force.start();
+
+/*            setTimeout(function() {
               force.start();
               var n = tweets.length;
               for (var i = n * n; i > 0; --i) force.tick();
@@ -406,7 +447,7 @@ define(['../module'], function (controllers) {
                     .attr("cx", function(d) { return d.x; })
                     .attr("cy", function(d) { return d.y; })
                 });
-            }, 10);
+            }, 10);*/
 
         }
 
