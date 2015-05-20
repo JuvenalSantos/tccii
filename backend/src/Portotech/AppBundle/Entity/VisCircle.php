@@ -15,12 +15,14 @@ class VisCircle {
      */
     private $circles;
     private $tweetCircles;
+    private $subjects;
 
     function __construct(Visualization $visualization)
     {
         $this->visualization = $visualization;
         $this->circles = array();
         $this->tweetCircles = array();
+        $this->subjects = array();
     }
 
     /**
@@ -65,7 +67,7 @@ class VisCircle {
     }
 
     /**
-     * @param array $tCircles
+     * @param array $tweets
      */
     public function setTweetCircles($tweets)
     {
@@ -79,5 +81,20 @@ class VisCircle {
             );
         }
         $this->tweetCircles = $points;
+    }
+
+    /**
+     * @param array $subjects
+     */
+    public function setSubjects($subjects){
+        $this->subjects = $subjects;
+    }
+
+    /**
+     * @return array
+     */
+    public function getSubjects()
+    {
+        return $this->subjects;
     }
 }

@@ -23,6 +23,12 @@ define(['./module'], function (factories) {
 				params: {id: '@id', timestamp: '@timestamp'},
 				url: baseURL + "tweet/viscircle/:id/:timestamp",
 				isArray: true
+			},
+			getVisCircleTweetsBySubject: {
+				method : "GET",
+				params: {id: '@id', timestamp: '@timestamp', subject: '@subject'},
+				url: baseURL + "tweet/viscircle/:id/:timestamp/:subject",
+				isArray: true
 			}
 		});
 	}

@@ -7,6 +7,7 @@ define(['../module'], function (controllers) {
         //Parametro padrão de agregação para média dos tweets (30 minutos)
         $scope.form.aggregation = 1;
         $scope.visualization = {};
+        $scope.subjects = [];
         $scope.modalOpen = false;
 
         /*
@@ -14,7 +15,7 @@ define(['../module'], function (controllers) {
         */
         $scope.circles = [];
 
-        var focus, context, area, area2, xAxis, xAxis2, x, x2, y, y2, yAxis, brush, circle, scaleCircleColor, scaleCircleSize, dataNest, modal, gnodes, tooltip, foci, tcircles, tweetsByHour, scaleCircleTweetSize;
+        var focus, context, area, area2, xAxis, xAxis2, x, x2, y, y2, yAxis, brush, circle, scaleCircleColor, scaleCircleSize, dataNest, modal, gnodes, tooltip, tooltipCircle, foci, tcircles, tweetsByHour, scaleCircleTweetSize, gLegendTweets;
         
 
         var axis = {
@@ -23,9 +24,11 @@ define(['../module'], function (controllers) {
             }
         };
 
+
+
         var visLine = {
             width : canvas.width - (2 * canvas.margin.x) - axis.y.width,
-            height : (canvas.height * 0.6) - canvas.margin.y - canvas.ctrlTime.height,
+            height : canvas.height - canvas.margin.y - canvas.ctrlTime.height - 70,
             coord : {
                 x : canvas.margin.x + axis.y.width,
                 y : canvas.padding
@@ -46,11 +49,22 @@ define(['../module'], function (controllers) {
                 rmin : 3,
                 rmax : 30,
                 padding: 2,
-                height: 100
+                height: 100,
+                transition : {
+                    duration: 1000,
+                    ease : 'linear'
+                }
             },
             forceLayout : {
                 width: canvas.width * 0.9,
                 height: canvas.height * 0.8
+            },
+            subject : {
+                height: 200,
+                transition : {
+                    duration: 750,
+                    ease : 'linear'
+                }
             }
         };
         
@@ -78,11 +92,11 @@ define(['../module'], function (controllers) {
         //Limpa todos os elementos SVG
         d3.selectAll("svg").remove();
 
-        var svg = d3.select("body").append("svg")
+        var svg; /*= d3.select("body").append("svg")
         .attr("width", canvas.width)
         .attr("height", canvas.height)
         .style("background", "#fff")
-        .append("g");
+        .append("g");*/
 
         var customTimeFormat = d3.time.format.multi([
             //["%M", function(d) { return d.getMilliseconds(); }],
@@ -109,7 +123,12 @@ define(['../module'], function (controllers) {
             $scope.circles.forEach(function(d) {
                 d.creat_at = new Date(d['creat_at']);
             });
+            $scope.sub = data.subjects;
 
+            $scope.sub.forEach(function(d, i){
+                d.y = (i == 0) ? 0 : i * visLine.subject.height;
+                $scope.subjects[d.subject] = d;
+            });
             $scope.visualization.sentiments = $scope.visualization.sentiments.sort( function(a,b){ return d3.descending(a.sentiment, b.sentiment);  });
 
             initVisCircle();
@@ -122,6 +141,7 @@ define(['../module'], function (controllers) {
             switch($scope.form.aggregation) {
                 case 1:
                 case 2:
+                    $scope.renderUpdate();
                     break;
 
                 default:
@@ -149,6 +169,9 @@ define(['../module'], function (controllers) {
            context.select(".area").remove();
            context.select(".x.axis").remove();
            context.select(".x.brush").remove();
+           svg.selectAll("text.subject").remove();
+           focus.remove();
+           context.remove();
 
             renderFocus();
             renderContext();
@@ -170,18 +193,42 @@ define(['../module'], function (controllers) {
         * Função responsável por inicializar os elementos necessários para renderização da visualização
         */
        function initVisCircle() {
+            svg = d3.select("body").append("svg")
+                .attr("width", canvas.width)
+                .attr("height", function (){
+                    var h = $scope.subjects.lenght * visLine.subject.height;
+                    if( h > canvas.height)
+                        return h;
+                    else
+                        return canvas.height;
+                })
+                .style("background", "#fff")
+                .append("g");
+
             initFoci();
+
             /*
             * Define o tooltip a ser utlizado na visualização do conteúdo do Tweet
             */
             tooltip = d3.tip()
             .attr("class", "d3-tip")
-            .attr("color", "red")
             .offset([-10, 0])
             .html(function(d) {
                 return "<span>Followers: <strong>" + d.retweets + "</strong>. Tweet: " + d.tweet + "</span>";
             });
             svg.call(tooltip);
+
+            /*
+            * Define o tooltip a ser utlizado na visualização da quantidades de Tweet do circulo
+            */
+            tooltipCircle = d3.tip()
+            .attr("class", "d3-tip")
+            .offset([-10, 0])
+            .html(function(d) {
+                var t = d.value == undefined ? d.values : d.value;
+                return "<span>Tweets: <strong>" + t + "</strong></span>";
+            });
+            svg.call(tooltipCircle);
 
             /*
             * Define as escalas de tempos para utilização no eixo X do gráfico principal e no brush
@@ -287,36 +334,36 @@ define(['../module'], function (controllers) {
             x2.domain(x.domain());
 
             /*
-            * Agrupa os tweets por data
-            */
-            dataNest = d3.nest()
-                .key(function(d) {return d.creat_at.getTime();})
-                .key(function(d) {return d.sentiment;})
-                .rollup(function(d) { 
-                    return d3.sum(d, function(g) {return g.total; });
-                })
-                .entries($scope.circles)
-                .map(function(d){
-                    var key = d.key
-                    var children = d.values.map(function(dd){
-                        var key = +dd.key
-
-                        return {'key':key, 'value': dd.values}
-                    })
-                    return {'key':key, 'value': (visLine.circles.rmax*2), 'children':children.sort(function(a,b){ return d3.descending(a.value, b.value); })}
-                })
-                ;
-
-            /*
             * Renderiza os circulos do gráfico principal
             */
             if($scope.form.aggregation == 1){
+                /*
+                * Agrupa os tweets por data
+                */
+                dataNest = d3.nest()
+                    .key(function(d) {return d.creat_at.getTime();})
+                    .key(function(d) {return d.sentiment;})
+                    .rollup(function(d) { 
+                        return d3.sum(d, function(g) {return g.total; });
+                    })
+                    .entries($scope.circles)
+                    .map(function(d){
+                        var key = d.key
+                        var children = d.values.map(function(dd){
+                            var key = +dd.key
+
+                            return {'key':key, 'value': dd.values}
+                        })
+                        return {'key':key, 'value': (visLine.circles.rmax*2), 'children':children.sort(function(a,b){ return d3.descending(a.value, b.value); })}
+                    })
+                    ;
+
                 circle = focus.selectAll(".gcircle")
                 .data(dataNest);
 
                 circle.enter().append("g")
                 .attr("class", "gcircle")
-                .attr("transform", function(d, i) { return "translate(" + x(new Date().setTime(d.key)) + "," + (visLine.circles.height) + ")"; });
+                .attr("transform", function(d, i) { return "translate(" + x(new Date().setTime(d.key)) + "," + visLine.circles.rmax + ")"; });
 
                 circle.selectAll(".gcircle")
                 .data(function(d){
@@ -337,15 +384,119 @@ define(['../module'], function (controllers) {
                     .data(function(d){ return d.children; })
                     .enter().append("circle")
                     .attr("fill", function(d) { return scaleCircleColor(d.key); })
-                    .attr("r", function(d) { return scaleCircleSize(d.value); })
-                    .attr("transform", function(d, i) { return "translate(" + 0 + "," + (i == 0 ? 0 : (scaleCircleSize(d.value) + d.ra)) + ")"; })
+                    .attr("r", function(d) { return 0; })
+                    .attr("transform", function(d, i) { return "translate(" + 0 + "," + 0 + ")"; })
                     .on("click", function(d) {
                         TweetFactory.getVisCircleTweets({id:$routeParams.id, timestamp: d.parent}, successHandlerTweetsByHour);
                     })
+                    .on('mouseover', tooltipCircle.show)
+                    .on('mouseout', tooltipCircle.hide)
+                    ;
+
+                    xcircle.transition()
+                        .duration(visLine.circles.transition.duration).ease(visLine.circles.transition.ease)
+                        .attr("r", function (d) { return scaleCircleSize(d.value); })
+                        .attr("transform", function(d, i) { return "translate(" + 0 + "," + (i == 0 ? 0 : (scaleCircleSize(d.value) + d.ra)) + ")"; })
+                        ;
+
+                circle.exit().remove();
+
+                var subjectAxisY = svg.append("text")
+                        .attr("class", "subject")
+                        .attr("x", 5)
+                        .attr("y", 0)
+                        .text("Geral")
+                        .style("text-anchor", "start");
+
+                subjectAxisY.transition()
+                    .duration(visLine.subject.transition.duration).ease(visLine.subject.transition.ease)
+                    .attr("y", function(d) { return visLine.circles.rmax; })
+            } else {
+                /*
+                * Agrupa os tweets por data e assunto
+                */
+                dataNest = d3.nest()
+                    .key(function(d) {return d.creat_at.getTime();})
+                    .key(function(d){ return d.subject; })
+                    .key(function(d) {return d.sentiment;})
+                    .rollup(function(d) { 
+                        return d3.sum(d, function(g) {return g.total; });
+                    })
+                    .entries($scope.circles)
+                    ;
+
+                circle = focus.selectAll(".gcircle")
+                .data(dataNest);
+
+                circle.enter().append("g")
+                .attr("class", "gcircle")
+                .attr("transform", function(d, i) { return "translate(" + x(new Date().setTime(d.key)) + "," + (visLine.circles.height) + ")"; });
+
+                circle.selectAll(".gcircle")
+                .data(function(d){
+                    d.values.map(function(e, i){
+                        var ra = 0;
+                        e.values.map(function(f, j){
+                            f.parent = d.key/1000;
+                            f.subject = e.key;
+                            f.ra = ra;
+                            if( j == 0 )
+                                ra += scaleCircleSize(f.values) + 2;
+                            else {
+                                ra += (scaleCircleSize(f.values) * 2 ) + 2;
+                            }
+                        });
+                    });
+                    return d;
+                });
+
+                var subcircle = circle.selectAll(".gcircle")
+                    .data(function(d){ return d.values; })
+                    .enter().append("g")
+                    .attr("class", "subcircle")
+                    .attr("transform", function(d) { return "translate(0, 0)"; })
+
+                    ;
+
+                subcircle.transition()
+                    .duration(visLine.subject.transition.duration).ease(visLine.subject.transition.ease)
+                    .attr("transform", function(d) { return "translate(0," + $scope.subjects[d.key].y + ")"; })
+                    ;
+
+                var xcircle = subcircle.selectAll(".subcircle")
+                    .data(function(d){ return d.values; })
+                    .enter().append("circle")
+                    .attr("fill", function(d) { return scaleCircleColor(d.key); })
+                    .attr("r", function(d) { return 0; })
+                    .attr("transform", function(d, i) { return "translate(0, 0)"; })
+                    .on("click", function(d) {
+                        TweetFactory.getVisCircleTweetsBySubject({id:$routeParams.id, timestamp: d.parent, subject: d.subject}, successHandlerTweetsByHour);
+                    })
+                    .on('mouseover', tooltipCircle.show)
+                    .on('mouseout', tooltipCircle.hide)
+                    ;
+
+                xcircle.transition()
+                    .duration(visLine.circles.transition.duration).ease(visLine.circles.transition.ease)
+                    .attr("r", function (d) { return scaleCircleSize(d.values); })
+                    .attr("transform", function(d, i) { return "translate(" + 0 + "," + (i == 0 ? 0 : (scaleCircleSize(d.values) + d.ra)) + ")"; })
                     ;
 
                 circle.exit().remove();
-            } else {
+
+                var subjectAxisY = svg.selectAll("text.subject")
+                    .data(d3.values($scope.subjects))
+                    .enter()
+                        .append("text")
+                        .attr("class", "subject")
+                        .attr("x", 5)
+                        .attr("y", 0)
+                        .text(function(d){ return d.subject; })
+                        .style("text-anchor", "start");
+
+                subjectAxisY.transition()
+                    .duration(visLine.subject.transition.duration).ease(visLine.subject.transition.ease)
+                    .attr("y", function(d) { return d.y + visLine.circles.rmax; })
 
             }
 
@@ -442,7 +593,7 @@ define(['../module'], function (controllers) {
                 scaleCircleTweetSize.domain()[1]
             ];
 
-            var gLegendTweets = svg.append("g")
+            gLegendTweets = svg.append("g")
                 .attr("class", "g-legend-tweets")
                 .attr("transform", "translate(20, 0)");
 
@@ -613,7 +764,7 @@ define(['../module'], function (controllers) {
             focus.selectAll(".gcircle")
             .transition().duration(visLine.transition.duration).ease(visLine.transition.ease)
             //.attr("cx", function(d) { return x(new Date().setTime(d.key)); })
-            .attr("transform", function(d) { return "translate(" + x(new Date().setTime(d.key)) + "," + 100 + ")"; });
+            .attr("transform", function(d) { return "translate(" + x(new Date().setTime(d.key)) + "," + visLine.circles.rmax + ")"; });
 
             svg.select(".x.axis")
             .transition().duration(visLine.transition.duration).ease(visLine.transition.ease)
@@ -631,6 +782,7 @@ define(['../module'], function (controllers) {
         $scope.closeModal = function() {
             modal.remove();
             gnodes.remove();
+            gLegendTweets.remove();
             $scope.modalOpen = false;
         }
 

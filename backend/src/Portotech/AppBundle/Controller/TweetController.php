@@ -128,7 +128,7 @@ class TweetController extends FOSRestController
     }
 
     /**
-     * Lists all Tweet entities by Visualization (Circle) timestamp.
+     * Lists all Tweet entities by Visualization (Circle) By Timestamp.
      *
      * @ApiDoc(
      *     section = "02 - Tweet",
@@ -151,6 +151,36 @@ class TweetController extends FOSRestController
         $visCircle = new VisCircle($visualization);
 
         $lines = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsEachHourBySentimentByVisualizationByTimestamp($id, $timestamp);
+
+        $visCircle->setTweetCircles($lines);
+
+        return $this->view($visCircle->getTweetCircles());
+    }
+
+    /**
+     * Lists all Tweet entities by Visualization (Circle) By Timestamp and Subject.
+     *
+     * @ApiDoc(
+     *     section = "02 - Tweet",
+     *     statusCodes={
+     *         200="Returned when successful",
+     *     }
+     * )
+     * @Rest\Get("/viscircle/{id}/{timestamp}/{subject}", name="tweets_by_visualization_timestamp_subject_circle")
+     */
+    public function tweetsByVisualizationTimestampAndSubjectCircleAction($id, $timestamp, $subject)
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $visualization = $em->getRepository('PortotechAppBundle:Visualization')->find($id);
+
+        if (!$visualization) {
+            throw $this->createNotFoundException('Unable to find Visualization entity.');
+        }
+
+        $visCircle = new VisCircle($visualization);
+
+        $lines = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsEachHourBySentimentByVisualizationByTimestampBySubject($id, $timestamp, $subject);
 
         $visCircle->setTweetCircles($lines);
 

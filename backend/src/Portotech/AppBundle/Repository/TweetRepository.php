@@ -216,4 +216,31 @@ class TweetRepository extends EntityRepository
         $stmt->execute();
         return $stmt->fetchAll();
     }
+
+    public function findTweetsEachHourBySentimentByVisualizationByTimestampBySubject($visualization, $timestamp, $subject){
+        $db = $this->getEntityManager()->getConnection();
+        $sql = "SELECT subject, sentiment, retweets, tweet_text
+                FROM Tweet
+                WHERE Visualization_id = :visualization AND subject = :subject
+                AND DATE_FORMAT(creat_at,'%Y-%m-%dT%H:00:00') = FROM_UNIXTIME(:timestamp,'%Y-%m-%dT%H:00:00');";
+        $stmt = $db->prepare($sql);
+        $stmt->bindParam(':visualization', $visualization, PDO::PARAM_INT);
+        $stmt->bindParam(':timestamp', $timestamp, PDO::PARAM_STR);
+        $stmt->bindParam(':subject', $subject, PDO::PARAM_STR);
+
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+
+    public function findSubjectsByVisualization($visualization){
+        $db = $this->getEntityManager()->getConnection();
+        $sql = "SELECT DISTINCT subject
+                FROM Tweet
+                WHERE Visualization_id = :visualization;";
+        $stmt = $db->prepare($sql);
+        $stmt->bindParam(':visualization', $visualization, PDO::PARAM_INT);
+
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
 }
