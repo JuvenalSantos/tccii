@@ -15,7 +15,7 @@ define(['../module'], function (controllers) {
         */
         $scope.circles = [];
 
-        var focus, context, area, area2, xAxis, xAxis2, x, x2, y, y2, yAxis, brush, circle, scaleCircleColor, scaleCircleSize, dataNest, modal, gnodes, tooltip, tooltipCircle, foci, tcircles, tweetsByHour, scaleCircleTweetSize, gLegendTweets;
+        var focus, context, area, area2, xAxis, xAxis2, x, x2, y, y2, yAxis, brush, circle, scaleCircleColor, scaleCircleSize, dataNest, modal, gnodes, tooltip, tooltipCircle, foci, tcircles, tweetsByHour, scaleCircleTweetSize, gLegendTweets, gLegendPrincipal;
         
 
         var axis = {
@@ -24,14 +24,12 @@ define(['../module'], function (controllers) {
             }
         };
 
-
-
         var visLine = {
             width : canvas.width - (2 * canvas.margin.x) - axis.y.width,
-            height : canvas.height - canvas.margin.y - canvas.ctrlTime.height - 70,
+            height : canvas.height - canvas.margin.y - canvas.ctrlTime.height - 70 - 100,
             coord : {
                 x : canvas.margin.x + axis.y.width,
-                y : canvas.padding
+                y : canvas.padding + 100
             },
             transition : {
                 duration : 100,
@@ -53,7 +51,7 @@ define(['../module'], function (controllers) {
                 transition : {
                     duration: 1000,
                     ease : 'linear'
-                }
+                },
             },
             forceLayout : {
                 width: canvas.width * 0.9,
@@ -68,6 +66,11 @@ define(['../module'], function (controllers) {
             }
         };
         
+        visLine.circles.coord = {
+                x : visLine.coord.x,
+                y : visLine.coord.y + visLine.circles.rmax
+            };
+
         axis.x = {
             width : visLine.width,
             height : visLine.height,
@@ -281,9 +284,9 @@ define(['../module'], function (controllers) {
             /*
             * Define a escala de tamanho (raio) dos circulso da visualização
             */
-            scaleCircleSize = d3.scale.sqrt()
-            .domain(d3.extent($scope.circles, function(d){ return d.total; }))
-            .rangeRound([visLine.circles.rmin, visLine.circles.rmax])
+            scaleCircleSize = d3.scale.linear()
+            .domain([1, d3.max($scope.circles, function(d){ return d.total; })])
+            .range([visLine.circles.rmin, visLine.circles.rmax])
             ;
 
             /*
@@ -291,7 +294,7 @@ define(['../module'], function (controllers) {
             */
             scaleCircleTweetSize = d3.scale.linear()
             .domain([$scope.followersMinMax.min, $scope.followersMinMax.max])
-            .rangeRound([visLine.circles.rmin, visLine.circles.rmax])
+            .range([visLine.circles.rmin, visLine.circles.rmax])
             ;
 
             /*
@@ -322,7 +325,9 @@ define(['../module'], function (controllers) {
             .attr("width", visLine.width)
             .attr("height", (visLine.height + 20));
 
+
             renderFocus();
+            renderLegendPrincipal();
             renderFocusSentimentScale();
             renderContext();
         }
@@ -366,16 +371,18 @@ define(['../module'], function (controllers) {
 
                             return {'key':key, 'value': dd.values}
                         })
-                        return {'key':key, 'value': (visLine.circles.rmax*2), 'children':children.sort(function(a,b){ return d3.descending(a.value, b.value); })}
+                        return {'key':key, 'children':children.sort(function(a,b){ return d3.descending(a.value, b.value); })}
                     })
                     ;
+
+                scaleCircleSize.domain([1, d3.max(dataNest, function(d){ return d3.max(d.children, function(e){return e.value;});})]);
 
                 circle = focus.selectAll(".gcircle")
                 .data(dataNest);
 
                 circle.enter().append("g")
                 .attr("class", "gcircle")
-                .attr("transform", function(d, i) { return "translate(" + x(new Date().setTime(d.key)) + "," + visLine.circles.rmax + ")"; });
+                .attr("transform", function(d, i) { return "translate(" + x(new Date().setTime(d.key)) + "," + (visLine.circles.rmax + visLine.circles.padding) + ")"; });
 
                 circle.selectAll(".gcircle")
                 .data(function(d){
@@ -384,9 +391,9 @@ define(['../module'], function (controllers) {
                         e.parent = d.key/1000;
                         e.ra = ra;
                         if( i == 0 )
-                            ra += scaleCircleSize(e.value) + 2;
+                            ra += scaleCircleSize(e.value) + visLine.circles.padding;
                         else {
-                            ra += (scaleCircleSize(e.value) * 2 ) + 2;
+                            ra += (scaleCircleSize(e.value) * 2 ) + visLine.circles.padding;
                         }
                     });
                     return d;
@@ -397,7 +404,6 @@ define(['../module'], function (controllers) {
                     .enter().append("circle")
                     .attr("fill", function(d) { return scaleCircleColor(d.key); })
                     .attr("r", function(d) { return 0; })
-                    .attr("transform", function(d, i) { return "translate(" + 0 + "," + 0 + ")"; })
                     .on("click", function(d) {
                         TweetFactory.getVisCircleTweets({id:$routeParams.id, timestamp: d.parent}, successHandlerTweetsByHour);
                     })
@@ -408,7 +414,7 @@ define(['../module'], function (controllers) {
                     xcircle.transition()
                         .duration(visLine.circles.transition.duration).ease(visLine.circles.transition.ease)
                         .attr("r", function (d) { return scaleCircleSize(d.value); })
-                        .attr("transform", function(d, i) { return "translate(" + 0 + "," + (i == 0 ? 0 : (scaleCircleSize(d.value) + d.ra)) + ")"; })
+                        .attr("transform", function(d, i) { return "translate(0," + (i == 0 ? 0 : (scaleCircleSize(d.value) + d.ra)) + ")"; })
                         ;
 
                 circle.exit().remove();
@@ -416,13 +422,13 @@ define(['../module'], function (controllers) {
                 var subjectAxisY = svg.append("text")
                         .attr("class", "subject")
                         .attr("x", 5)
-                        .attr("y", 0)
+                        .attr("y", visLine.circles.coord.y)
                         .text("Geral")
                         .style("text-anchor", "start");
 
                 subjectAxisY.transition()
                     .duration(visLine.subject.transition.duration).ease(visLine.subject.transition.ease)
-                    .attr("y", function(d) { return visLine.circles.rmax; })
+                    .attr("y", function(d) { return visLine.circles.coord.y; })
             } else {
                 /*
                 * Agrupa os tweets por data e assunto
@@ -442,7 +448,7 @@ define(['../module'], function (controllers) {
 
                 circle.enter().append("g")
                 .attr("class", "gcircle")
-                .attr("transform", function(d, i) { return "translate(" + x(new Date().setTime(d.key)) + "," + (visLine.circles.height) + ")"; });
+                .attr("transform", function(d, i) { return "translate(" + x(new Date().setTime(d.key)) + "," + (visLine.circles.rmax + visLine.circles.padding) + ")"; });
 
                 circle.selectAll(".gcircle")
                 .data(function(d){
@@ -453,9 +459,9 @@ define(['../module'], function (controllers) {
                             f.subject = e.key;
                             f.ra = ra;
                             if( j == 0 )
-                                ra += scaleCircleSize(f.values) + 2;
+                                ra += scaleCircleSize(f.values) + visLine.circles.padding;
                             else {
-                                ra += (scaleCircleSize(f.values) * 2 ) + 2;
+                                ra += (scaleCircleSize(f.values) * 2 ) + visLine.circles.padding;
                             }
                         });
                     });
@@ -466,21 +472,18 @@ define(['../module'], function (controllers) {
                     .data(function(d){ return d.values; })
                     .enter().append("g")
                     .attr("class", "subcircle")
-                    .attr("transform", function(d) { return "translate(0, 0)"; })
-
                     ;
 
                 subcircle.transition()
                     .duration(visLine.subject.transition.duration).ease(visLine.subject.transition.ease)
-                    .attr("transform", function(d) { return "translate(0," + $scope.subjects[d.key].y + ")"; })
+                    .attr("transform", function(d) { return "translate(0," + ($scope.subjects[d.key].y + visLine.circles.padding) + ")"; })
                     ;
 
                 var xcircle = subcircle.selectAll(".subcircle")
                     .data(function(d){ return d.values; })
                     .enter().append("circle")
                     .attr("fill", function(d) { return scaleCircleColor(d.key); })
-                    .attr("r", function(d) { return 0; })
-                    .attr("transform", function(d, i) { return "translate(0, 0)"; })
+                    .attr("r", 0)
                     .on("click", function(d) {
                         TweetFactory.getVisCircleTweetsBySubject({id:$routeParams.id, timestamp: d.parent, subject: d.subject}, successHandlerTweetsByHour);
                     })
@@ -502,13 +505,13 @@ define(['../module'], function (controllers) {
                         .append("text")
                         .attr("class", "subject")
                         .attr("x", 5)
-                        .attr("y", 0)
+                        .attr("y", visLine.circles.coord.y)
                         .text(function(d){ return d.subject; })
                         .style("text-anchor", "start");
 
                 subjectAxisY.transition()
                     .duration(visLine.subject.transition.duration).ease(visLine.subject.transition.ease)
-                    .attr("y", function(d) { return d.y + visLine.circles.rmax; })
+                    .attr("y", function(d) { return visLine.circles.coord.y + d.y; })
 
             }
 
@@ -585,10 +588,10 @@ define(['../module'], function (controllers) {
 
             force.start();
 
-            renderLegend();
+            renderLegendTweets();
         }
 
-        function renderLegend() {
+        function renderLegendTweets() {
             /*
             * Renderiza a legenda do gráfico de Tweets
             */
@@ -678,7 +681,99 @@ define(['../module'], function (controllers) {
                 .attr("dx", "15px")
                 .attr("dy", ".40em")
                 ;
+        }
 
+        function renderLegendPrincipal() {
+            /*
+            * Renderiza a legenda do gráfico principal
+            */
+
+            var gScaleSizes = 0;
+
+            var sizes = [
+                scaleCircleSize.domain()[0],
+                Math.floor(scaleCircleSize.domain()[1]/2),
+                scaleCircleSize.domain()[1]
+            ];
+
+            gLegendPrincipal = svg.append("g")
+                .attr("class", "g-legend-principal")
+                .attr("transform", "translate(20, 0)");
+
+            var gScaleTexts = gLegendPrincipal.append("g")
+                .attr("class", "g-legend-principal-texts");
+
+            var scaleTexts = gScaleTexts.append("text")    
+                .attr("x", 20)
+                .attr("y", visLine.circles.rmax + 10)
+                .style("text-anchor", "start");
+
+            scaleTexts.append("tspan")
+                .style("font-color", "#777")
+                .style("fill", "#777")
+                .text("Quantidade de Tweets: ");
+                
+            gLegendPrincipal.attr("transform", function(d){ gScaleSizes = this.getBBox().width + 20; return "translate(0,0)"; });
+
+            var gScaleCircles = gLegendPrincipal.append("g")
+                .attr("class", "g-legend-principal-circles");
+
+            var scaleCircles = gScaleCircles.selectAll("g")
+                .data(sizes)
+                .enter().append("g")
+                .attr("class", "g-tweets");
+
+            scaleCircles.append("circle")
+                .attr("class", "circleLegend")
+                .attr("r", scaleCircleSize);
+
+            scaleCircles.append("text")
+                .attr("x", function(d) { return scaleCircleSize(d) + 4; })
+                .attr("dy", ".35em")
+                .text(function(d) { return d; });
+
+            scaleCircles.attr("transform", function(d) {
+                var y = visLine.circles.rmax + 5;
+                var t = "translate(" + (gScaleSizes + 20) + ", "+ y +")";
+                gScaleSizes += this.getBBox().width + y;
+                return t;
+            });
+
+            var gScaleSentiments = gLegendPrincipal.append("text")    
+                .attr("x", gScaleSizes)
+                .attr("y", visLine.circles.rmax + 10)
+                .style("text-anchor", "start");
+
+            gScaleSentiments.append("tspan")
+                .style("font-color", "#777")
+                .style("fill", "#777")
+                .text("Sentimentos: ");
+
+            gLegendPrincipal.attr("transform", function(d){ gScaleSizes = this.getBBox().width + 30; return "translate(0,0)"; });
+
+            var legendGroup = gLegendPrincipal.append("g")
+            .attr("class", "legendgroup")
+            .attr("transform", "translate("+ ( gScaleSizes + 15 ) +"," + (visLine.circles.rmax + 5) + ")")
+            ;
+
+            var legend = legendGroup.selectAll(".legend")
+            .data($scope.visualization.sentiments)
+            .enter().append("g")
+                .attr("class", "legend")
+                .attr("transform", function(d, i){ return "translate("+ (visLine.legend.width * i)+", 0)"; })
+            ;
+
+            legend.append("circle")
+                .attr("r", 7)
+                .attr("fill", function(d, i) { return scaleCircleColor(d.sentiment); })
+            ;
+
+            legend.append("text")
+                .text(function(d) { return d.description; })
+                .style("font-size", visLine.legend.fontSize)
+                .attr("dx", "15px")
+                .attr("dy", ".40em")
+                ;
         }
 
         /*
