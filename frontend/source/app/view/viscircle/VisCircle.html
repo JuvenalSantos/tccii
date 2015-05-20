@@ -33,12 +33,12 @@
 		<li>
 			<!--<label>Agregação: </label>-->
 		 	<div class="btn-group btn-group-sm" data-ng-if="true">
-				<label class="btn btn-default" ng-model="form.aggregation" ng-change="changeAggregation()" btn-radio="1">
-					<span class="fa fa-clock-o" ></span> Agrupado
+				<label class="btn btn-default" ng-model="form.aggregation" ng-change="changeAggregation()" btn-radio="1" tooltip="Agrupa quantidade de tweets por data">
+					<span class="fa fa-cube" ></span> Geral
 				</label>
 
-				<label class="btn btn-default" ng-model="form.aggregation" ng-change="changeAggregation()" btn-radio="2">
-					<span class="fa fa-clock-o"></span> Por assunto
+				<label class="btn btn-default" ng-model="form.aggregation" ng-change="changeAggregation()" btn-radio="2" tooltip="Agrupa quantidade de tweets por data e assunto">
+					<span class="fa fa-cubes"></span> Por assunto
 				</label>
 			</div>
 		</li>
