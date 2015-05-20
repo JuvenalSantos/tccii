@@ -243,4 +243,16 @@ class TweetRepository extends EntityRepository
         $stmt->execute();
         return $stmt->fetchAll();
     }
+
+    public function findMinMaxFollowersByVisualization($visualization){
+        $db = $this->getEntityManager()->getConnection();
+        $sql = "SELECT MIN(retweets) AS min, MAX(retweets) AS max
+                FROM Tweet
+                WHERE Visualization_id = :visualization;";
+        $stmt = $db->prepare($sql);
+        $stmt->bindParam(':visualization', $visualization, PDO::PARAM_INT);
+
+        $stmt->execute();
+        return $stmt->fetch();
+    }
 }

@@ -120,6 +120,7 @@ define(['../module'], function (controllers) {
         function successHandlerFullVisCircle(data) {
             $scope.visualization = data.visualization;
             $scope.circles = data.circles;
+            $scope.followersMinMax = data.followers_min_max;
             $scope.circles.forEach(function(d) {
                 d.creat_at = new Date(d['creat_at']);
             });
@@ -269,7 +270,7 @@ define(['../module'], function (controllers) {
             .on("brushend", brushedend);
 
             /*
-            * Define a escala da palheta de cores a ser utilizada na coloração dos circulso (Tweets)
+            * Define a escala da palheta de cores a ser utilizada na coloração dos circulos (Tweets)
             */
             scaleCircleColor = d3.scale.linear()
             .domain(d3.extent($scope.visualization.sentiments, function(d){ return d.sentiment; }))
@@ -277,8 +278,19 @@ define(['../module'], function (controllers) {
             .interpolate(d3.interpolateHsl)
             ; 
 
+            /*
+            * Define a escala de tamanho (raio) dos circulso da visualização
+            */
             scaleCircleSize = d3.scale.sqrt()
             .domain(d3.extent($scope.circles, function(d){ return d.total; }))
+            .rangeRound([visLine.circles.rmin, visLine.circles.rmax])
+            ;
+
+            /*
+            * Define a escala de tamanho (raio) dos circulos da visualização de Tweets por hora
+            */
+            scaleCircleTweetSize = d3.scale.linear()
+            .domain([$scope.followersMinMax.min, $scope.followersMinMax.max])
             .rangeRound([visLine.circles.rmin, visLine.circles.rmax])
             ;
 
@@ -532,15 +544,10 @@ define(['../module'], function (controllers) {
             tweetsByHour = tweets;
             $scope.modalOpen = true;
 
-            scaleCircleTweetSize = d3.scale.linear()
-            .domain(d3.extent(tweets, function(d){ return d.retweets; }))
-            .rangeRound([visLine.circles.rmin, visLine.circles.rmax])
-            ;
-
             var force = d3.layout.force()
                         .nodes(tweets)
                         //.friction(0.9)
-                        //.gravity(0)
+                        //.gravity(1)
                         .charge(forceCharge)
                         //.alpha(0)
                         .size([visLine.forceLayout.width, visLine.forceLayout.height])
@@ -569,7 +576,7 @@ define(['../module'], function (controllers) {
                     .attr("cx", function(d){ return d.x; })
                     .attr("cy", function(d){ return d.y; })
                     .style("fill", function(d,i) { return scaleCircleColor(d.sentiment); })
-                    .call(force.drag)
+                    //.call(force.drag)
                     .on('mouseover', tooltip.show)
                     .on('mouseout', tooltip.hide)
                     ;
@@ -588,9 +595,9 @@ define(['../module'], function (controllers) {
 
             var gScaleSizes = 0;
             var sizes = [
-                scaleCircleTweetSize.domain()[0],
-                Math.floor(scaleCircleTweetSize.domain()[1]/2),
-                scaleCircleTweetSize.domain()[1]
+                $scope.followersMinMax.min,
+                Math.floor($scope.followersMinMax.max/2),
+                $scope.followersMinMax.max
             ];
 
             gLegendTweets = svg.append("g")
@@ -763,7 +770,6 @@ define(['../module'], function (controllers) {
             
             focus.selectAll(".gcircle")
             .transition().duration(visLine.transition.duration).ease(visLine.transition.ease)
-            //.attr("cx", function(d) { return x(new Date().setTime(d.key)); })
             .attr("transform", function(d) { return "translate(" + x(new Date().setTime(d.key)) + "," + visLine.circles.rmax + ")"; });
 
             svg.select(".x.axis")

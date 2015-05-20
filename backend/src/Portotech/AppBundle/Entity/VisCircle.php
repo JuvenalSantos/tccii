@@ -16,6 +16,7 @@ class VisCircle {
     private $circles;
     private $tweetCircles;
     private $subjects;
+    private $followersMinMax;
 
     function __construct(Visualization $visualization)
     {
@@ -23,6 +24,22 @@ class VisCircle {
         $this->circles = array();
         $this->tweetCircles = array();
         $this->subjects = array();
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getFollowersMinMax()
+    {
+        return $this->followersMinMax;
+    }
+
+    /**
+     * @param mixed $followersMinMax
+     */
+    public function setFollowersMinMax($followersMinMax)
+    {
+        $this->followersMinMax = $followersMinMax;
     }
 
     /**

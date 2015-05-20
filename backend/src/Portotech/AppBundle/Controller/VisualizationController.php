@@ -309,6 +309,9 @@ class VisualizationController extends FOSRestController
         $subjects = $em->getRepository('PortotechAppBundle:Tweet')->findSubjectsByVisualization($id);
         $visCircle->setSubjects($subjects);
 
+        $followerMinMax = $em->getRepository('PortotechAppBundle:Tweet')->findMinMaxFollowersByVisualization($id);
+        $visCircle->setFollowersMinMax($followerMinMax);
+
         return $this->view($visCircle);
     }
 
