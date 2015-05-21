@@ -494,6 +494,9 @@ define(['../module'], function (controllers) {
                 .text(function(d) { return d.word; });
         }
 
+        /*
+        * Função responsável por remover o loader da pagina
+        */
         function removeLoader(){
             svg.selectAll(".loader").remove();
         }
