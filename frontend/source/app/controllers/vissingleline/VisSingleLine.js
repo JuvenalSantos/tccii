@@ -78,12 +78,30 @@ define(['../module'], function (controllers) {
             }
         };
 
+        /*
+        * Remove a instancia SVG caso ela exista e cria uma nova
+        */
         d3.selectAll("svg").remove();
         var svg = d3.select("body").append("svg")
         .attr("width", canvas.width)
         .attr("height", canvas.height)
         .style("background", "#fff")
         .append("g");
+
+        /*
+        * Rendereiza o Loader
+        */
+        svg.append("text")
+            .text("Aguarde, gerando visualização.")
+            .style("font-size", 15)
+            .style("fill", "#777")
+            .style("text-anchor", "middle")
+            .attr("x", canvas.width/2)
+            .attr("y", visLine.height/2)
+            .attr("dx", "15px")
+            .attr("dy", ".40em")
+            .attr("class", "loader")
+            ;
        
         // Backgroud do Gráfico
         var gradient = svg.append("svg:defs")
@@ -312,6 +330,7 @@ define(['../module'], function (controllers) {
             .attr("height", (visLine.height + 20));
 
             renderFocus();
+            removeLoader();
             renderLegend();
             renderFocusSentimentScale();
             renderContext();
@@ -527,6 +546,13 @@ define(['../module'], function (controllers) {
                     return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
                 })
                 .text(function(d) { return d.word; });
+        }
+
+        /*
+        * Função responsável por remover o loader da pagina
+        */
+        function removeLoader(){
+            svg.selectAll(".loader").remove();
         }
 
         /*
