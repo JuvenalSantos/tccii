@@ -312,6 +312,7 @@ define(['../module'], function (controllers) {
             .attr("height", (visLine.height + 20));
 
             renderFocus();
+            renderLegend();
             renderFocusSentimentScale();
             renderContext();
         }
@@ -364,19 +365,29 @@ define(['../module'], function (controllers) {
             .attr("transform", "translate("+ visLine.coord.x +"," + (visLine.coord.y + visLine.height) + ")")
             .call(xAxis);
 
-            /*
-            * Renderiza a legenda do gráfico principal
-            */
+        }
+
+        /*
+        * Renderiza a legenda do gráfico principal
+        */
+        function renderLegend(){
             var legendGroup = svg.append("g")
             .attr("class", "legendgroup")
-            .attr("transform", "translate("+ ( ((canvas.width)/2) - ((visLine.legend.width * axisLabel.length)/2) )  +"," + (visLine.coord.y + visLine.height + 30) + ")")
+            .attr("transform", "translate(0, 7)")
             ;
+
+            legendGroup.append("text")
+                .text("Assuntos: ")
+                .style("font-size", visLine.legend.fontSize)
+                .attr("dx", "15px")
+                .attr("dy", ".40em")
+                ;
 
             var legend = legendGroup.selectAll(".legend")
             .data(axisLabel)
             .enter().append("g")
                 .attr("class", "legend")
-                .attr("transform", function(d, i){ return "translate("+ (visLine.legend.width * i)+",0)"; })
+                .attr("transform", function(d, i){ return "translate("+ ((visLine.legend.width * i) + 80) +",0)"; })
             ;
 
             legend.append("rect")
@@ -391,9 +402,7 @@ define(['../module'], function (controllers) {
                 .attr("dx", "15px")
                 .attr("dy", ".40em")
                 ;
-
         }
-
 
         /*
         * Função responsável por renderizar a escalade sentimento textual (Axis Y)
