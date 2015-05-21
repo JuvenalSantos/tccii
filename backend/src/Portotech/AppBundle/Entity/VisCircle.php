@@ -93,7 +93,7 @@ class VisCircle {
             $points[] = array(
                 'subject' => $tweet['subject'],
                 'sentiment' => (int) $tweet['sentiment'],
-                'retweets' => (int) $tweet['retweets'],
+                'followers' => (int) $tweet['followers'],
                 'tweet' => $tweet['tweet_text']
             );
         }

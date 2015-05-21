@@ -135,6 +135,7 @@ define(['../module'], function (controllers) {
             });
             $scope.visualization.sentiments = $scope.visualization.sentiments.sort( function(a,b){ return d3.descending(a.sentiment, b.sentiment);  });
 
+            initFoci();
             initVisCircle();
         }
 
@@ -209,8 +210,6 @@ define(['../module'], function (controllers) {
                 .style("background", "#fff")
                 .append("g");
 
-            initFoci();
-
             /*
             * Define o tooltip a ser utlizado na visualização do conteúdo do Tweet
             */
@@ -218,7 +217,7 @@ define(['../module'], function (controllers) {
             .attr("class", "d3-tip")
             .offset([-10, 0])
             .html(function(d) {
-                return "<span>Followers: <strong>" + d.retweets + "</strong>. Tweet: " + d.tweet + "</span>";
+                return "<span>Followers: <strong>" + d.followers + "</strong>. Tweet: " + d.tweet + "</span>";
             });
             svg.call(tooltip);
 
@@ -247,9 +246,9 @@ define(['../module'], function (controllers) {
             y2 = d3.scale.linear().range([canvas.ctrlTime.height, 0]);
 
             /*
-            * Define os dominios para a escala y e y2 de acordo como intervalo de retweets
+            * Define os dominios para a escala y e y2 de acordo como intervalo de followers
             */
-            y.domain(d3.extent($scope.circles, function(d){ return d.retweets; }));
+            y.domain(d3.extent($scope.circles, function(d){ return d.followers; }));
             y2.domain(y.domain());
 
             /*
@@ -302,9 +301,9 @@ define(['../module'], function (controllers) {
             */
             area2 = d3.svg.line()
             .interpolate("basic")
-            .defined(function(d) { return d.retweets !== null; })
+            .defined(function(d) { return d.followers !== null; })
             .x(function(d) { return x2(d.creat_at); })
-            .y(function(d) { return y2(d.retweets); });
+            .y(function(d) { return y2(d.followers); });
 
             /*
             * Renderiza o gráfico principal
@@ -313,7 +312,7 @@ define(['../module'], function (controllers) {
             .attr("width", visLine.width)
             .attr("height", visLine.height)
             .attr("class", "rect")
-            .style("fill", "#FFF")
+            .style("fill", "#F6F6F6")
             .attr("transform", "translate(" + visLine.coord.x + "," + visLine.coord.y + ")");
 
             /*
@@ -531,7 +530,7 @@ define(['../module'], function (controllers) {
         }
 
         function forceCharge(d){
-            var size = scaleCircleTweetSize(d.retweets);
+            var size = scaleCircleTweetSize(d.followers);
             size = size < 4 ? 4 : size;
 
             return -(Math.pow((size * 1.45), 2));
@@ -581,7 +580,7 @@ define(['../module'], function (controllers) {
                     .enter()
                     .append("circle")
                     .attr("class", "tcircle")
-                    .attr("r", function(d) { return scaleCircleTweetSize(d.retweets); })
+                    .attr("r", function(d) { return scaleCircleTweetSize(d.followers); })
                     .attr("cx", function(d){ return d.x; })
                     .attr("cy", function(d){ return d.y; })
                     .style("fill", function(d,i) { return scaleCircleColor(d.sentiment); })
