@@ -379,6 +379,7 @@ define(['../module'], function (controllers) {
             legendGroup.append("text")
                 .text("Assuntos: ")
                 .style("font-size", visLine.legend.fontSize)
+                .style("fill", "#777")
                 .attr("dx", "15px")
                 .attr("dy", ".40em")
                 ;
@@ -429,7 +430,14 @@ define(['../module'], function (controllers) {
             svg.append("g")
             .attr("class", "y axis")
             .attr("transform", "translate("+ visLine.coord.x +"," + visLine.coord.y + ")")
-            .call(sentimentAxis);
+            .call(sentimentAxis)
+            .append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", 5)
+                .attr("x", -5)
+                .attr("dy", ".71em")
+                .style("text-anchor", "end")
+                .text("Sentimentos ");
         }
 
         /*
