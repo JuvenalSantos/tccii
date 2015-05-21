@@ -441,6 +441,12 @@ define(['../module'], function (controllers) {
                         return d3.sum(d, function(g) {return g.total; });
                     })
                     .entries($scope.circles)
+                    .map(function(d){
+                        d.values.map(function(dd){
+                            dd.values.sort(function(a,b){ return d3.descending(a.values, b.values); })
+                        });
+                        return d;
+                    })
                     ;
 
                 circle = focus.selectAll(".gcircle")
