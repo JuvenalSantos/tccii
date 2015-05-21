@@ -95,16 +95,9 @@ define(['../module'], function (controllers) {
         //Limpa todos os elementos SVG
         d3.selectAll("svg").remove();
 
-        var svg; /*= d3.select("body").append("svg")
-        .attr("width", canvas.width)
-        .attr("height", canvas.height)
-        .style("background", "#fff")
-        .append("g");*/
+        var svg;
 
         var customTimeFormat = d3.time.format.multi([
-            //["%M", function(d) { return d.getMilliseconds(); }],
-            //["%H:%M:%S", function(d) { return d.getSeconds() }],
-            //["%H:%M", function(d) { return d.getMinutes(); }],
             ["%H:%M", function(d) { return d.getHours(); }],
             ["%a %d", function(d) { return d.getDay() && d.getDate() != 1; }],
             ["%b %d", function(d) { return d.getDate() != 1; }],
@@ -324,7 +317,6 @@ define(['../module'], function (controllers) {
             .attr("width", visLine.width)
             .attr("height", (visLine.height + 20));
 
-
             renderFocus();
             renderLegendPrincipal();
             renderFocusSentimentScale();
@@ -354,7 +346,7 @@ define(['../module'], function (controllers) {
             */
             if($scope.form.aggregation == 1){
                 /*
-                * Agrupa os tweets por data
+                * Agrupa os tweets por data e ordena a exibição do circulos da maior para menor quantidade de tweets por data
                 */
                 dataNest = d3.nest()
                     .key(function(d) {return d.creat_at.getTime();})
@@ -374,8 +366,14 @@ define(['../module'], function (controllers) {
                     })
                     ;
 
+                /*
+                * Configura o dominio da escala dos circulos de acordo com os novos valores agrupados
+                */
                 scaleCircleSize.domain([1, d3.max(dataNest, function(d){ return d3.max(d.children, function(e){return e.value;});})]);
 
+                /*
+                * Cria grupo de circulos para cada data
+                */
                 circle = focus.selectAll(".gcircle")
                 .data(dataNest);
 
@@ -387,8 +385,11 @@ define(['../module'], function (controllers) {
                 .data(function(d){
                     var ra = 0;
                     d.children.map(function(e, i){
-                        e.parent = d.key/1000;
+                        e.parent = d.key/1000;  //Corrige o timestamp para ficar compativel com o mysql
                         e.ra = ra;
+                        /*
+                        * Lógica para manter os circulos um abaixo do outro
+                        */
                         if( i == 0 )
                             ra += scaleCircleSize(e.value) + visLine.circles.padding;
                         else {
@@ -398,6 +399,9 @@ define(['../module'], function (controllers) {
                     return d;
                 });
 
+                /*
+                * Cria os circulos dentro do grupo
+                */
                 var xcircle = circle.selectAll(".gcircle")
                     .data(function(d){ return d.children; })
                     .enter().append("circle")
@@ -410,14 +414,20 @@ define(['../module'], function (controllers) {
                     .on('mouseout', tooltipCircle.hide)
                     ;
 
-                    xcircle.transition()
-                        .duration(visLine.circles.transition.duration).ease(visLine.circles.transition.ease)
-                        .attr("r", function (d) { return scaleCircleSize(d.value); })
-                        .attr("transform", function(d, i) { return "translate(0," + (i == 0 ? 0 : (scaleCircleSize(d.value) + d.ra)) + ")"; })
-                        ;
+                /*
+                * Habilita transição com efeito de inflar os circulos
+                */
+                xcircle.transition()
+                    .duration(visLine.circles.transition.duration).ease(visLine.circles.transition.ease)
+                    .attr("r", function (d) { return scaleCircleSize(d.value); })
+                    .attr("transform", function(d, i) { return "translate(0," + (i == 0 ? 0 : (scaleCircleSize(d.value) + d.ra)) + ")"; })
+                    ;
 
                 circle.exit().remove();
 
+                /*
+                * Renderiza as lengeda da axis Y
+                */
                 var subjectAxisY = svg.append("text")
                         .attr("class", "subject")
                         .attr("x", 5)
@@ -425,12 +435,15 @@ define(['../module'], function (controllers) {
                         .text("Geral")
                         .style("text-anchor", "start");
 
+                /*
+                * Habilita transição com efeito deslizante
+                */                
                 subjectAxisY.transition()
                     .duration(visLine.subject.transition.duration).ease(visLine.subject.transition.ease)
                     .attr("y", function(d) { return visLine.circles.coord.y; })
             } else {
                 /*
-                * Agrupa os tweets por data e assunto
+                * Agrupa os tweets por data e assunto e ordena a exibição do circulos da maior para menor quantidade de tweets por data
                 */
                 dataNest = d3.nest()
                     .key(function(d) {return d.creat_at.getTime();})
@@ -448,6 +461,9 @@ define(['../module'], function (controllers) {
                     })
                     ;
 
+                /*
+                * Cria grupo de circulos para cada data
+                */
                 circle = focus.selectAll(".gcircle")
                 .data(dataNest);
 
@@ -460,9 +476,12 @@ define(['../module'], function (controllers) {
                     d.values.map(function(e, i){
                         var ra = 0;
                         e.values.map(function(f, j){
-                            f.parent = d.key/1000;
+                            f.parent = d.key/1000;  //Corrige o timestamp para ficar compativel com o mysql
                             f.subject = e.key;
                             f.ra = ra;
+                            /*
+                            * Lógica para manter os circulos um abaixo do outro
+                            */
                             if( j == 0 )
                                 ra += scaleCircleSize(f.values) + visLine.circles.padding;
                             else {
@@ -473,17 +492,26 @@ define(['../module'], function (controllers) {
                     return d;
                 });
 
+                /*
+                * Cria grupo de circulos para cada data e assunto
+                */
                 var subcircle = circle.selectAll(".gcircle")
                     .data(function(d){ return d.values; })
                     .enter().append("g")
                     .attr("class", "subcircle")
                     ;
 
+                /*
+                * Habilita transição de efeito deslizante
+                */
                 subcircle.transition()
                     .duration(visLine.subject.transition.duration).ease(visLine.subject.transition.ease)
                     .attr("transform", function(d) { return "translate(0," + ($scope.subjects[d.key].y + visLine.circles.padding) + ")"; })
                     ;
 
+                /*
+                * Cria os circulos dentro do respectivo grupo
+                */
                 var xcircle = subcircle.selectAll(".subcircle")
                     .data(function(d){ return d.values; })
                     .enter().append("circle")
@@ -496,6 +524,9 @@ define(['../module'], function (controllers) {
                     .on('mouseout', tooltipCircle.hide)
                     ;
 
+                /*
+                * Habilita transição com efeito de inflar os circulos
+                */
                 xcircle.transition()
                     .duration(visLine.circles.transition.duration).ease(visLine.circles.transition.ease)
                     .attr("r", function (d) { return scaleCircleSize(d.values); })
@@ -504,6 +535,9 @@ define(['../module'], function (controllers) {
 
                 circle.exit().remove();
 
+                /*
+                * Renderiza as lengeda da axis Y com os respectivos assuntos
+                */
                 var subjectAxisY = svg.selectAll("text.subject")
                     .data(d3.values($scope.subjects))
                     .enter()
@@ -514,6 +548,9 @@ define(['../module'], function (controllers) {
                         .text(function(d){ return d.subject; })
                         .style("text-anchor", "start");
 
+                /*
+                * Habilita transição com efeito deslizante
+                */  
                 subjectAxisY.transition()
                     .duration(visLine.subject.transition.duration).ease(visLine.subject.transition.ease)
                     .attr("y", function(d) { return visLine.circles.coord.y + d.y; })
@@ -537,15 +574,16 @@ define(['../module'], function (controllers) {
         }
 
         function forceTick(e) {
-          var k = 1.2 * e.alpha;
-          tweetsByHour.forEach(function(o, i) {
-            o.y += (foci[o.sentiment].y - o.y) * k;
-            o.x += (foci[o.sentiment].x - o.x) * k;
-          });
+            var k = 1.2 * e.alpha;
 
-          tcircles
-              .attr("cx", function(d) { return d.x; })
-              .attr("cy", function(d) { return d.y; });
+            tweetsByHour.forEach(function(o, i) {
+                o.y += (foci[o.sentiment].y - o.y) * k;
+                o.x += (foci[o.sentiment].x - o.x) * k;
+            });
+
+            tcircles
+                .attr("cx", function(d) { return d.x; })
+                .attr("cy", function(d) { return d.y; });
         }
 
         function successHandlerTweetsByHour(tweets) {
@@ -560,14 +598,12 @@ define(['../module'], function (controllers) {
                         //.alpha(0)
                         .size([visLine.forceLayout.width, visLine.forceLayout.height])
                         ;
-
-            //force.start();
             
             modal = svg.append("svg:rect")
-                    .attr("width", canvas.width)
-                    .attr("height", canvas.height)
-                    .style("fill", "#fff")
-                    .style("opacity", .99);
+                .attr("width", canvas.width)
+                .attr("height", canvas.height)
+                .style("fill", "#fff")
+                .style("opacity", .99);
 
             gnodes = svg.append("g")
                 .attr("class", "gtcircle")
@@ -576,18 +612,18 @@ define(['../module'], function (controllers) {
                 ;
 
             tcircles = gnodes.selectAll(".tcircle")
-                    .data(tweets)
-                    .enter()
-                    .append("circle")
-                    .attr("class", "tcircle")
-                    .attr("r", function(d) { return scaleCircleTweetSize(d.followers); })
-                    .attr("cx", function(d){ return d.x; })
-                    .attr("cy", function(d){ return d.y; })
-                    .style("fill", function(d,i) { return scaleCircleColor(d.sentiment); })
-                    //.call(force.drag)
-                    .on('mouseover', tooltip.show)
-                    .on('mouseout', tooltip.hide)
-                    ;
+                .data(tweets)
+                .enter()
+                .append("circle")
+                .attr("class", "tcircle")
+                .attr("r", function(d) { return scaleCircleTweetSize(d.followers); })
+                .attr("cx", function(d){ return d.x; })
+                .attr("cy", function(d){ return d.y; })
+                .style("fill", function(d,i) { return scaleCircleColor(d.sentiment); })
+                //.call(force.drag)
+                .on('mouseover', tooltip.show)
+                .on('mouseout', tooltip.hide)
+                ;
 
             force.on("tick", forceTick);
 
