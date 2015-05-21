@@ -78,12 +78,30 @@ define(['../module'], function (controllers) {
             }
         };
 
+        /*
+        * Remove a instancia SVG caso ela exista e cria uma nova
+        */
         d3.selectAll("svg").remove();
         var svg = d3.select("body").append("svg")
         .attr("width", canvas.width)
         .attr("height", canvas.height)
         .style("background", "#fff")
         .append("g");  
+
+        /*
+        * Rendereiza o Loader
+        */
+        svg.append("text")
+            .text("Aguarde, gerando visualização.")
+            .style("font-size", 15)
+            .style("fill", "#777")
+            .style("text-anchor", "middle")
+            .attr("x", canvas.width/2)
+            .attr("y", visLine.height/2)
+            .attr("dx", "15px")
+            .attr("dy", ".40em")
+            .attr("class", "loader")
+            ;
 
         var customTimeFormat = d3.time.format.multi([
             //["%M", function(d) { return d.getMilliseconds(); }],
@@ -281,6 +299,8 @@ define(['../module'], function (controllers) {
             .attr("height", (visLine.height + 20));
 
             renderFocus();
+            removeLoader();
+            renderLegend();
             renderFocusCountTweetsScale();
             renderContext();
         }
@@ -328,20 +348,30 @@ define(['../module'], function (controllers) {
             .attr("class", "x axis")
             .attr("transform", "translate("+ visLine.coord.x +"," + (visLine.coord.y + visLine.height) + ")")
             .call(xAxis);
+        }
 
-            /*
-            * Renderiza a legenda do gráfico principal
-            */
+        /*
+        * Renderiza a legenda do gráfico principal
+        */
+        function renderLegend(){
             var legendGroup = svg.append("g")
             .attr("class", "legendgroup")
-            .attr("transform", "translate("+ ( ((canvas.width)/2) - ((visLine.legend.width * $scope.visualization.sentiments.length)/2) ) +"," + (visLine.coord.y + visLine.height + 30) + ")")
+            .attr("transform", "translate(0, 7)")
             ;
+
+            legendGroup.append("text")
+                .text("Sentimentos: ")
+                .style("font-size", visLine.legend.fontSize)
+                .style("fill", "#777")
+                .attr("dx", "15px")
+                .attr("dy", ".40em")
+                ;
 
             var legend = legendGroup.selectAll(".legend")
             .data($scope.visualization.sentiments)
             .enter().append("g")
                 .attr("class", "legend")
-                .attr("transform", function(d, i){ return "translate("+ (visLine.legend.width * i)+",0)"; })
+                .attr("transform", function(d, i){ return "translate("+ ((visLine.legend.width * i) + 100) +",0)"; })
             ;
 
             legend.append("rect")
@@ -375,7 +405,14 @@ define(['../module'], function (controllers) {
             svg.append("g")
             .attr("class", "y axis")
             .attr("transform", "translate("+ visLine.coord.x +"," + visLine.coord.y + ")")
-            .call(sentimentAxis);
+            .call(sentimentAxis)
+            .append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", 5)
+                .attr("x", -5)
+                .attr("dy", ".71em")
+                .style("text-anchor", "end")
+                .text("Quantide de Tweets");
         }
 
         /*
@@ -455,6 +492,13 @@ define(['../module'], function (controllers) {
                     return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
                 })
                 .text(function(d) { return d.word; });
+        }
+
+        /*
+        * Função responsável por remover o loader da pagina
+        */
+        function removeLoader(){
+            svg.selectAll(".loader").remove();
         }
 
         /*

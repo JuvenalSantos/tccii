@@ -191,6 +191,9 @@ define(['../module'], function (controllers) {
         * Função responsável por inicializar os elementos necessários para renderização da visualização
         */
        function initVisCircle() {
+            /*
+            * Cria uma nova instancia SVG
+            */
             svg = d3.select("body").append("svg")
                 .attr("width", canvas.width)
                 .attr("height", function (){
@@ -202,6 +205,21 @@ define(['../module'], function (controllers) {
                 })
                 .style("background", "#fff")
                 .append("g");
+
+            /*
+            * Rendereiza o Loader
+            */
+            svg.append("text")
+                .text("Aguarde, gerando visualização.")
+                .style("font-size", 15)
+                .style("fill", "#777")
+                .style("text-anchor", "middle")
+                .attr("x", canvas.width/2)
+                .attr("y", visLine.height/2)
+                .attr("dx", "15px")
+                .attr("dy", ".40em")
+                .attr("class", "loader")
+                ;
 
             /*
             * Define o tooltip a ser utlizado na visualização do conteúdo do Tweet
@@ -318,6 +336,7 @@ define(['../module'], function (controllers) {
             .attr("height", (visLine.height + 20));
 
             renderFocus();
+            removeLoader();
             renderLegendPrincipal();
             renderFocusSentimentScale();
             renderContext();
@@ -911,6 +930,13 @@ define(['../module'], function (controllers) {
             svg.select(".x.axis")
             .transition().duration(visLine.transition.duration).ease(visLine.transition.ease)
             .call(xAxis);
+        }
+
+        /*
+        * Função responsável por remover o loader da pagina
+        */
+        function removeLoader(){
+            svg.selectAll(".loader").remove();
         }
 
         /*
