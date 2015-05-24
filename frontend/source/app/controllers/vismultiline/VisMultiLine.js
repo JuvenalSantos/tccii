@@ -143,6 +143,7 @@ define(['../module'], function (controllers) {
                 case '10m':
                 case '15m':
                 case '30m':
+                case '60m':
                     TweetFactory.getVisMultiLine({id:$routeParams.id, aggregation: $scope.form.aggregation}, successHandlerChangeAggregation);
                     break;
 
@@ -167,13 +168,15 @@ define(['../module'], function (controllers) {
         */
         $scope.renderUpdate = function() {
            focus.selectAll(".area-g").remove();
-           svg.select(".x.axis").remove();
-           context.select(".area").remove();
-           context.select(".x.axis").remove();
-           context.select(".x.brush").remove();
+           svg.selectAll(".x.axis").remove();
+           context.selectAll(".area").remove();
+           context.selectAll(".x.axis").remove();
+           context.selectAll(".x.brush").remove();
+           svg.selectAll(".y.axis").remove();
 
             renderFocus();
             renderContext();
+            renderFocusCountTweetsScale();
             brushedend();
         }
 
@@ -324,6 +327,12 @@ define(['../module'], function (controllers) {
             x2.domain(x.domain());
 
             /*
+            * Define os dominios para a escala y e y2 de acordo como intervalo com a quantidade total de tweets por agrupamento
+            */
+            y.domain([0, 1.1*d3.max($scope.lines, function(d){ return +d.y; })]);
+            y2.domain(y.domain());
+
+            /*
             * Agrupa os tweets por sentimento
             */
             dataNest = d3.nest()
@@ -394,7 +403,7 @@ define(['../module'], function (controllers) {
         function renderFocusCountTweetsScale() {            
             /*
             * Define a axis (Y) com a representação da escala do total de tweets
-            */              
+            */        
             var sentimentAxis = d3.svg.axis()
             .scale(y)
             .orient("left");

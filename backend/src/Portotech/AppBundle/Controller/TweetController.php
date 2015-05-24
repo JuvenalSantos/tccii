@@ -69,6 +69,10 @@ class TweetController extends FOSRestController
                 $lines = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsEachThirtyMinutesByVisualizationSingleLine($id);
                 break;
 
+            case '60m':
+                $lines = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsEachHourByVisualizationSingleLine($id);
+                break;
+
             default:
                 throw $this->createNotFoundException('Unable to find aggregation parameter.');
         }
@@ -116,6 +120,10 @@ class TweetController extends FOSRestController
 
             case '30m':
                 $lines = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsEachThirtyMinutesByVisualizationMultiLine($id);
+                break;
+
+            case '60m':
+                $lines = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsEachHourByVisualizationMultiLine($id);
                 break;
 
             default:

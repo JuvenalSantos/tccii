@@ -165,18 +165,10 @@ define(['../module'], function (controllers) {
         $scope.changeAggregation = function() {
             switch($scope.form.aggregation) {
                 case '5m':
-                    TweetFactory.getVisSingleLine({id:$routeParams.id, aggregation: $scope.form.aggregation}, successHandlerChangeAggregation);
-                    break;
-
                 case '10m':
-                    TweetFactory.getVisSingleLine({id:$routeParams.id, aggregation: $scope.form.aggregation}, successHandlerChangeAggregation);
-                    break;
-
                 case '15m':
-                    TweetFactory.getVisSingleLine({id:$routeParams.id, aggregation: $scope.form.aggregation}, successHandlerChangeAggregation);
-                    break;
-
                 case '30m':
+                case '60m':
                     TweetFactory.getVisSingleLine({id:$routeParams.id, aggregation: $scope.form.aggregation}, successHandlerChangeAggregation);
                     break;
 
@@ -358,7 +350,7 @@ define(['../module'], function (controllers) {
             * Agrupa os tweets por sentimento
             */
             dataNest = d3.nest()
-                .key(function(d) {return d.subject;})
+                .key(function(d) {return d.subject;}).sortKeys(d3.ascending)
                 .entries($scope.lines);
 
             axisLabel = [];
