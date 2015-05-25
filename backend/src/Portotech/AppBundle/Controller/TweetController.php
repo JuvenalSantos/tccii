@@ -3,6 +3,8 @@
 namespace Portotech\AppBundle\Controller;
 
 use JMS\Serializer\SerializationContext;
+use Portotech\AppBundle\Entity\VisCircle;
+use Portotech\AppBundle\Entity\VisMultiLine;
 use Portotech\AppBundle\Entity\VisSingleLine;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -28,7 +30,7 @@ class TweetController extends FOSRestController
 {
 
     /**
-     * Lists all Tweet entities Aggregated by Visualization id.
+     * Lists all Tweet entities Aggregated by Visualization (SingleLine) id.
      *
      * @ApiDoc(
      *     section = "02 - Tweet",
@@ -52,19 +54,23 @@ class TweetController extends FOSRestController
 
         switch($aggregation) {
             case '5m':
-                $lines = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsEachFiveMinutesByVisualization($id);
+                $lines = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsEachFiveMinutesByVisualizationSingleLine($id);
                 break;
 
             case '10m':
-                $lines = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsEachTenMinutesByVisualization($id);
+                $lines = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsEachTenMinutesByVisualizationSingleLine($id);
                 break;
 
             case '15m':
-                $lines = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsEachFifteenMinutesByVisualization($id);
+                $lines = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsEachFifteenMinutesByVisualizationSingleLine($id);
                 break;
 
             case '30m':
-                $lines = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsEachThirtyMinutesByVisualization($id);
+                $lines = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsEachThirtyMinutesByVisualizationSingleLine($id);
+                break;
+
+            case '60m':
+                $lines = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsEachHourByVisualizationSingleLine($id);
                 break;
 
             default:
@@ -74,6 +80,119 @@ class TweetController extends FOSRestController
         $visSingleLine->setLines($lines);
 
         return $this->view($visSingleLine->getLines());
+    }
+
+    /**
+     * Lists all Tweet entities Aggregated by Visualization (MultiLine) id.
+     *
+     * @ApiDoc(
+     *     section = "02 - Tweet",
+     *     statusCodes={
+     *         200="Returned when successful",
+     *     }
+     * )
+     * @Rest\Get("/vismultiline/{id}/{aggregation}", name="tweets_aggregated_by_visualization_multiline")
+     */
+    public function tweetsByVisualizationMultiLineAction($id, $aggregation)
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $visualization = $em->getRepository('PortotechAppBundle:Visualization')->find($id);
+
+        if (!$visualization) {
+            throw $this->createNotFoundException('Unable to find Visualization entity.');
+        }
+
+        $visMultiLine = new VisMultiLine($visualization);
+
+        switch($aggregation) {
+            case '5m':
+                $lines = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsEachFiveMinutesByVisualizationMultiLine($id);
+                break;
+
+            case '10m':
+                $lines = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsEachTenMinutesByVisualizationMultiLine($id);
+                break;
+
+            case '15m':
+                $lines = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsEachFifteenMinutesByVisualizationMultiLine($id);
+                break;
+
+            case '30m':
+                $lines = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsEachThirtyMinutesByVisualizationMultiLine($id);
+                break;
+
+            case '60m':
+                $lines = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsEachHourByVisualizationMultiLine($id);
+                break;
+
+            default:
+                throw $this->createNotFoundException('Unable to find aggregation parameter.');
+        }
+
+        $visMultiLine->setLines($lines);
+
+        return $this->view($visMultiLine->getLines());
+    }
+
+    /**
+     * Lists all Tweet entities by Visualization (Circle) By Timestamp.
+     *
+     * @ApiDoc(
+     *     section = "02 - Tweet",
+     *     statusCodes={
+     *         200="Returned when successful",
+     *     }
+     * )
+     * @Rest\Get("/viscircle/{id}/{timestamp}", name="tweets_by_visualization_timestamp_circle")
+     */
+    public function tweetsByVisualizationTimestampCircleAction($id, $timestamp)
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $visualization = $em->getRepository('PortotechAppBundle:Visualization')->find($id);
+
+        if (!$visualization) {
+            throw $this->createNotFoundException('Unable to find Visualization entity.');
+        }
+
+        $visCircle = new VisCircle($visualization);
+
+        $lines = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsEachHourBySentimentByVisualizationByTimestamp($id, $timestamp);
+
+        $visCircle->setTweetCircles($lines);
+
+        return $this->view($visCircle->getTweetCircles());
+    }
+
+    /**
+     * Lists all Tweet entities by Visualization (Circle) By Timestamp and Subject.
+     *
+     * @ApiDoc(
+     *     section = "02 - Tweet",
+     *     statusCodes={
+     *         200="Returned when successful",
+     *     }
+     * )
+     * @Rest\Get("/viscircle/{id}/{timestamp}/{subject}", name="tweets_by_visualization_timestamp_subject_circle")
+     */
+    public function tweetsByVisualizationTimestampAndSubjectCircleAction($id, $timestamp, $subject)
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $visualization = $em->getRepository('PortotechAppBundle:Visualization')->find($id);
+
+        if (!$visualization) {
+            throw $this->createNotFoundException('Unable to find Visualization entity.');
+        }
+
+        $visCircle = new VisCircle($visualization);
+
+        $lines = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsEachHourBySentimentByVisualizationByTimestampBySubject($id, $timestamp, $subject);
+
+        $visCircle->setTweetCircles($lines);
+
+        return $this->view($visCircle->getTweetCircles());
     }
 
     /**

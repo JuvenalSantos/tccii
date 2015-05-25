@@ -1,0 +1,57 @@
+<div class="pull-left">
+	<ul class="list-inline" data-ng-if="!modalOpen">
+		<li>
+		    <div class="btn-group btn-group-sm">
+				<a class="btn btn-default" href="#/VisSingleLine/{{visualization.id}}">
+					<span class="fa fa-line-chart"></span>  Gráfico de linha
+				</a>
+
+				<a class="btn btn-default" href="#/VisMultiLine/{{visualization.id}}">
+					<span class="fa fa-line-chart"></span> Gráfico de multilinha
+				</a>
+
+				<a class="btn btn-default active" href="#/VisCircle/{{visualization.id}}">
+					<span class="fa fa-line-chart"></span> Gráfico de circulo
+				</a>
+		    </div>
+		</li>
+	</ul>
+</div>
+
+<div class="pull-right">
+	<ul class="list-inline" data-ng-if="!modalOpen">
+		<li>
+			<label class="btn btn-default btn-sm active" tooltip="Arquivo de dados da visualização">
+				<span class="fa fa-file-text-o"></span> {{visualization.name}}
+			</label>
+		</li>
+		<li>
+			<label class="btn btn-default btn-sm active" tooltip="Total de tweets análisados">
+				<span class="fa fa-twitter"></span> {{visualization.total_tweets | number}}
+			</label>
+		</li>
+		<li>
+			<!--<label>Agregação: </label>-->
+		 	<div class="btn-group btn-group-sm" data-ng-if="true">
+				<label class="btn btn-default" ng-model="form.aggregation" ng-change="changeAggregation()" btn-radio="1" tooltip="Agrupa quantidade de tweets por data">
+					<span class="fa fa-cube" ></span> Geral
+				</label>
+
+				<label class="btn btn-default" ng-model="form.aggregation" ng-change="changeAggregation()" btn-radio="2" tooltip="Agrupa quantidade de tweets por data e assunto">
+					<span class="fa fa-cubes"></span> Por assunto
+				</label>
+			</div>
+		</li>
+		<li>
+			<label class="btn btn-default btn-sm" ng-click="clearBrushSelection()" tooltip="Limpa o intervalo de tempo selecionado"><span class="fa fa-eraser"></span> Limpar seleção</label>
+		</li>
+	</ul>
+	<div class="clearfix"></div>
+	<ul class="list-inline" data-ng-if="modalOpen">
+		<li>
+			<label class="btn btn-default btn-sm" tooltip="Fechar" data-ng-click="closeModal();">
+				<span class="fa fa-close"></span> Fechar
+			</label>
+		</li>
+	</ul>
+</div>

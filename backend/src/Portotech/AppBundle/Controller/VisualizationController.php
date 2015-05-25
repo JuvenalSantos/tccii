@@ -6,6 +6,9 @@ use Doctrine\Common\Util\Debug;
 use Doctrine\DBAL\DBALException;
 use PDOException;
 use Portotech\AppBundle\Entity\FileUpload;
+
+use Portotech\AppBundle\Entity\VisMultiLine;
+use Portotech\AppBundle\Entity\VisCircle;
 use Portotech\AppBundle\Entity\VisSingleLine;
 use Portotech\AppBundle\Form\FileUploadType;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -112,7 +115,7 @@ class VisualizationController extends FOSRestController
                 $em->persist($entity);
                 $em->flush();
 
-                $filePath = $this->container->getParameter('absolute_path_upload').'/'.$entity->getFile();
+                $filePath = $this->get('kernel')->getRootDir() . '/../web/upload/' . $entity->getFile();
 
                 $em->getRepository("PortotechAppBundle:Tweet")->loadDataFile($filePath, $entity->getId());
 
@@ -196,19 +199,19 @@ class VisualizationController extends FOSRestController
 
         switch($aggregation) {
             case '5m':
-                $lines = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsEachFiveMinutesByVisualization($id);
+                $lines = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsEachFiveMinutesByVisualizationSingleLine($id);
                 break;
 
             case '10m':
-                $lines = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsEachTenMinutesByVisualization($id);
+                $lines = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsEachTenMinutesByVisualizationSingleLine($id);
                 break;
 
             case '15m':
-                $lines = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsEachFifteenMinutesByVisualization($id);
+                $lines = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsEachFifteenMinutesByVisualizationSingleLine($id);
                 break;
 
             case '30m':
-                $lines = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsEachThirtyMinutesByVisualization($id);
+                $lines = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsEachThirtyMinutesByVisualizationSingleLine($id);
                 break;
 
             default:
@@ -222,6 +225,94 @@ class VisualizationController extends FOSRestController
 
 
         return $this->view($visSingleLine);
+    }
+
+    /**
+     * Finds and displays a Visualization entity (MultiLine).
+     *
+     * @ApiDoc(
+     *     section = "01 - Visualization",
+     *     statusCodes={
+     *         200="Returned when successful",
+     *     }
+     * )
+     * @Rest\Get("/multiline/{id}/{aggregation}", name="visualization_show_multiline")
+     */
+    public function showVisualizationMultiLineAction($id, $aggregation)
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $visualization = $em->getRepository('PortotechAppBundle:Visualization')->find($id);
+
+        if (!$visualization) {
+            throw $this->createNotFoundException('Unable to find Visualization entity.');
+        }
+
+        $visMultiLine = new VisMultiLine($visualization);
+
+        switch($aggregation) {
+            case '5m':
+                $lines = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsEachFiveMinutesByVisualizationMultiLine($id);
+                break;
+
+            case '10m':
+                $lines = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsEachTenMinutesByVisualizationMultiLine($id);
+                break;
+
+            case '15m':
+                $lines = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsEachFifteenMinutesByVisualizationMultiLine($id);
+                break;
+
+            case '30m':
+                $lines = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsEachThirtyMinutesByVisualizationMultiLine($id);
+                break;
+
+            default:
+                throw $this->createNotFoundException('Unable to find aggregation parameter.');
+        }
+
+        $visMultiLine->setLines($lines);
+
+        $cloudTags = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsTagsByVisualization($id);
+        $visMultiLine->setCloudTags($cloudTags);
+
+
+        return $this->view($visMultiLine);
+    }
+
+    /**
+     * Finds and displays a VisCircle entity (Full information).
+     *
+     * @ApiDoc(
+     *     section = "01 - Visualization",
+     *     statusCodes={
+     *         200="Returned when successful",
+     *     }
+     * )
+     * @Rest\Get("/viscircle/{id}", name="visualization_circle_show_full")
+     */
+    public function shoVisCircleFullAction($id)
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $visualization = $em->getRepository('PortotechAppBundle:Visualization')->find($id);
+
+        if (!$visualization) {
+            throw $this->createNotFoundException('Unable to find Visualization entity.');
+        }
+
+        $visCircle = new VisCircle($visualization);
+
+        $circles = $em->getRepository('PortotechAppBundle:Tweet')->findTweetsEachHourBySentimentByVisualization($id);
+        $visCircle->setCircles($circles);
+
+        $subjects = $em->getRepository('PortotechAppBundle:Tweet')->findSubjectsByVisualization($id);
+        $visCircle->setSubjects($subjects);
+
+        $followerMinMax = $em->getRepository('PortotechAppBundle:Tweet')->findMinMaxFollowersByVisualization($id);
+        $visCircle->setFollowersMinMax($followerMinMax);
+
+        return $this->view($visCircle);
     }
 
     /**

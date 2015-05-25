@@ -617,7 +617,12 @@ a:active, a:selected, a:visited {
     stroke: #F03000;
     stroke-width: 1.5px;
     clip-path: url(#clip);
-}            
+}
+.area-g {
+    fill: none;
+    stroke-width: 1.5px;
+    clip-path: url(#clip);
+}           
 .axis path,
 .axis line {
     fill: none;
@@ -629,4 +634,50 @@ a:active, a:selected, a:visited {
     stroke: #fff;
     fill-opacity: .125;
     shape-rendering: crispEdges;
+}
+
+circle {
+	fill-opacity: 0.85;
+	stroke: #353232;
+	stroke-width: .5px;
+}
+
+.d3-tip {
+  line-height: 1;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  border-radius: 3;
+}
+
+/* Creates a small triangle extender for the tooltip */
+.d3-tip:after {
+  box-sizing: border-box;
+  display: inline;
+  font-size: 10px;
+  width: 100%;
+  line-height: 1;
+  color: rgba(0, 0, 0, 0.8);
+  content: "\25BC";
+  position: absolute;
+  text-align: center;
+}
+
+/* Style northward tooltips differently */
+.d3-tip.n:after {
+  margin: -1px 0 0 0;
+  top: 100%;
+  left: 0;
+}
+
+.circleLegend {
+	fill: #DDD;
+	fill-opacity: 0.9;
+	stroke: #000;
+	stroke-width: .5px;
+}
+
+g.x.brush > rect.background {
+	visibility: visible !important;
+	fill: #F6F6F6;
 }

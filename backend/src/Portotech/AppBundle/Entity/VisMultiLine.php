@@ -3,7 +3,7 @@
 namespace Portotech\AppBundle\Entity;
 
 
-class VisSingleLine {
+class VisMultiLine {
 
    /**
     * @var \Portotech\AppBundle\Entity\Visualization
@@ -45,9 +45,9 @@ class VisSingleLine {
         $points = array();
         foreach($lines as $point) {
             $points[] = array(
-                'subject' => $point['subject'],
+                'sentiment' => (int)$point['sentiment'],
                 'creat_at' => $point['creat_at'],
-                'y' => $point['media']
+                'y' => (int)$point['total']
             );
         }
         $this->lines = $points;

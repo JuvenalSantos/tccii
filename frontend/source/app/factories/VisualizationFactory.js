@@ -10,6 +10,16 @@ define(['./module'], function (factories) {
 				method : "GET",
 				params: {id: '@id', aggregation: '@aggregation'},
 				url: baseURL + "visualization/full/:id/:aggregation"
+			},			
+			getFullVisualizationMultiLine: {
+				method : "GET",
+				params: {id: '@id', aggregation: '@aggregation'},
+				url: baseURL + "visualization/multiline/:id/:aggregation"
+			},
+			getFullVisCircle: {
+				method : "GET",
+				params: {id: '@id'},
+				url: baseURL + "visualization/viscircle/:id"
 			}
 		});
 	}

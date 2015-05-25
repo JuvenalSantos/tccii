@@ -6,7 +6,7 @@ frontend/node_modules
 frontend/temp
 backend/web/dist
 backend/web/bundles
-backend/web/upload/*
+#backend/web/upload/*
 backend/src/Portotech/AppBundle/Resources/views
 backend/src/Portotech/AppBundle/Tests
 backend/app/bootstrap.php.cache
@@ -21,3 +21,4 @@ backend/bin
 backend/var
 .idea
 *.php~
+*.*~

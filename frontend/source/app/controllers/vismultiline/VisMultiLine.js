@@ -1,7 +1,7 @@
 define(['../module'], function (controllers) {
     'use strict';
 
-    var VisSingleLine = function($scope, $rootScope, $routeParams, $location, VisualizationFactory, TweetFactory){
+    var VisMultiLine = function($scope, $rootScope, $routeParams, $location, VisualizationFactory, TweetFactory){
         $scope.form = {};
 
         //Parametro padrão de agregação para média dos tweets (30 minutos)
@@ -14,7 +14,7 @@ define(['../module'], function (controllers) {
         */
         $scope.lines = [];
 
-        var focus, context, area, area2, xAxis, xAxis2, x, x2, y, y2, yAxis, brush, scaleFontColor, subjectLineColor, dataNest, axisLabel;
+        var focus, context, area, area2, xAxis, xAxis2, x, x2, y, y2, yAxis, brush, scaleFontColor, scaleLineColor, dataNest;
         
 
         var axis = {
@@ -86,7 +86,7 @@ define(['../module'], function (controllers) {
         .attr("width", canvas.width)
         .attr("height", canvas.height)
         .style("background", "#fff")
-        .append("g");
+        .append("g");  
 
         /*
         * Rendereiza o Loader
@@ -102,31 +102,6 @@ define(['../module'], function (controllers) {
             .attr("dy", ".40em")
             .attr("class", "loader")
             ;
-       
-        // Backgroud do Gráfico
-        var gradient = svg.append("svg:defs")
-        .append("svg:linearGradient")
-        .attr("id", "gradient")
-        .attr("x1", "0%")
-        .attr("y1", "0%")
-        .attr("x2", "0%")
-        .attr("y2", "100%")
-        .attr("spreadMethod", "pad");
-
-        gradient.append("svg:stop")
-        .attr("offset", "0%")
-        .attr("stop-color", "#368F01")
-        .attr("stop-opacity", visLine.gradient.opacity);
-
-        gradient.append("svg:stop")
-        .attr("offset", "50%")
-        .attr("stop-color", "#ECEC00")
-        .attr("stop-opacity", visLine.gradient.opacity);
-
-        gradient.append("svg:stop")
-        .attr("offset", "100%")
-        .attr("stop-color", "#FA3301")
-        .attr("stop-opacity", visLine.gradient.opacity);   
 
         var customTimeFormat = d3.time.format.multi([
             //["%M", function(d) { return d.getMilliseconds(); }],
@@ -140,7 +115,7 @@ define(['../module'], function (controllers) {
         ]);         
        
         function init() {
-            VisualizationFactory.getFullVisualization({id:$routeParams.id, aggregation: $scope.form.aggregation}, successHandlerFullVisualization);
+            VisualizationFactory.getFullVisualizationMultiLine({id:$routeParams.id, aggregation: $scope.form.aggregation}, successHandlerFullVisualization);
         }
         init();
 
@@ -156,7 +131,7 @@ define(['../module'], function (controllers) {
             $scope.visualization.sentiments = $scope.visualization.sentiments.sort( function(a,b){ return d3.descending(a.sentiment, b.sentiment);  });
             $scope.cloudTags = data.cloud_tags;
 
-            initVisSingleLine();
+            initVisMultiLine();
         }
 
         /*
@@ -169,7 +144,7 @@ define(['../module'], function (controllers) {
                 case '15m':
                 case '30m':
                 case '60m':
-                    TweetFactory.getVisSingleLine({id:$routeParams.id, aggregation: $scope.form.aggregation}, successHandlerChangeAggregation);
+                    TweetFactory.getVisMultiLine({id:$routeParams.id, aggregation: $scope.form.aggregation}, successHandlerChangeAggregation);
                     break;
 
                 default:
@@ -193,20 +168,22 @@ define(['../module'], function (controllers) {
         */
         $scope.renderUpdate = function() {
            focus.selectAll(".area-g").remove();
-           svg.select(".x.axis").remove();
-           context.select(".area").remove();
-           context.select(".x.axis").remove();
-           context.select(".x.brush").remove();
+           svg.selectAll(".x.axis").remove();
+           context.selectAll(".area").remove();
+           context.selectAll(".x.axis").remove();
+           context.selectAll(".x.brush").remove();
+           svg.selectAll(".y.axis").remove();
 
             renderFocus();
             renderContext();
+            renderFocusCountTweetsScale();
             brushedend();
         }
 
         /*
         * Função responsável por inicializar os elementos necessários para renderização da visualização
         */
-       function initVisSingleLine() {
+       function initVisMultiLine() {
             /*
             * Define as escalas de tempos para utilização no eixo X do gráfico principal e no brush
             */
@@ -216,13 +193,13 @@ define(['../module'], function (controllers) {
             /*
             * Define as escalas lineares para utilização no eixo Y do gráfico principal e no brush
             */
-            y = d3.scale.linear().range([visLine.height-2, 2]),
+            y = d3.scale.linear().range([visLine.height, 0]),
             y2 = d3.scale.linear().range([canvas.ctrlTime.height, 0]);
 
             /*
-            * Define os dominios para a escala y e y2 de acordo como intervalo [-1,1]
+            * Define os dominios para a escala y e y2 de acordo como intervalo com a quantidade total de tweets por agrupamento
             */
-            y.domain(d3.extent($scope.visualization.sentiments, function(d){ return d.sentiment; }));
+            y.domain([0, 1.1*d3.max($scope.lines, function(d){ return +d.y; })]);
             y2.domain(y.domain());
 
             /*
@@ -250,7 +227,11 @@ define(['../module'], function (controllers) {
             /*
             * Define a escala da palheta de cores a ser utilizada na coloração das linhas
             */
-            subjectLineColor = d3.scale.category10();
+            scaleLineColor = d3.scale.linear()
+            .domain(d3.extent($scope.visualization.sentiments, function(d){ return d.sentiment; }))
+            .rangeRound(["#D12500", "#A0D100"])
+            .interpolate(d3.interpolateHsl)
+            ;
 
             /*
             * Define a escala da palheta de cores a ser utilizada na Cloud Tag
@@ -262,7 +243,7 @@ define(['../module'], function (controllers) {
             .rangeRound(["#AFAFAF", "#313131"])
             .interpolate(d3.interpolateHsl)
             ; 
-
+            
             /*
             * Cria a Cloud Tag
             */
@@ -274,7 +255,6 @@ define(['../module'], function (controllers) {
             .on("end", drawTags)
             .words($scope.cloudTags)
             .start();
-
 
             /*
             * Define o controle da Timeline
@@ -324,7 +304,7 @@ define(['../module'], function (controllers) {
             renderFocus();
             removeLoader();
             renderLegend();
-            renderFocusSentimentScale();
+            renderFocusCountTweetsScale();
             renderContext();
         }
 
@@ -347,24 +327,26 @@ define(['../module'], function (controllers) {
             x2.domain(x.domain());
 
             /*
+            * Define os dominios para a escala y e y2 de acordo como intervalo com a quantidade total de tweets por agrupamento
+            */
+            y.domain([0, 1.1*d3.max($scope.lines, function(d){ return +d.y; })]);
+            y2.domain(y.domain());
+
+            /*
             * Agrupa os tweets por sentimento
             */
             dataNest = d3.nest()
-                .key(function(d) {return d.subject;}).sortKeys(d3.ascending)
+                .key(function(d) {return d.sentiment;})
                 .entries($scope.lines);
 
-            axisLabel = [];
-
             /*
-            * Renderiza a linha do gráfico principal para cada assunto
+            * Renderiza a linha do gráfico principal para cada sentimento
             */
             dataNest.forEach(function(d, e) {
-                axisLabel.push(d.key);
-
                 focus.append("path")
                 .datum(d.values)
                 .attr("class", "area-g")
-                .attr("stroke", function(){ return subjectLineColor(e); })
+                .attr("stroke", function(){ return scaleLineColor(d.key); })
                 .attr("d", area);
             });
 
@@ -375,7 +357,6 @@ define(['../module'], function (controllers) {
             .attr("class", "x axis")
             .attr("transform", "translate("+ visLine.coord.x +"," + (visLine.coord.y + visLine.height) + ")")
             .call(xAxis);
-
         }
 
         /*
@@ -388,7 +369,7 @@ define(['../module'], function (controllers) {
             ;
 
             legendGroup.append("text")
-                .text("Assuntos: ")
+                .text("Sentimentos: ")
                 .style("font-size", visLine.legend.fontSize)
                 .style("fill", "#777")
                 .attr("dx", "15px")
@@ -396,20 +377,20 @@ define(['../module'], function (controllers) {
                 ;
 
             var legend = legendGroup.selectAll(".legend")
-            .data(axisLabel)
+            .data($scope.visualization.sentiments)
             .enter().append("g")
                 .attr("class", "legend")
-                .attr("transform", function(d, i){ return "translate("+ ((visLine.legend.width * i) + 80) +",0)"; })
+                .attr("transform", function(d, i){ return "translate("+ ((visLine.legend.width * i) + 100) +",0)"; })
             ;
 
             legend.append("rect")
                 .attr("width", 10)
                 .attr("height", 2)
-                .attr("fill", function(d, i) { return subjectLineColor(i); })
+                .attr("fill", function(d, i) { return scaleLineColor(d.sentiment); })
             ;
 
             legend.append("text")
-                .text(function(d) { return d; })
+                .text(function(d) { return d.description; })
                 .style("font-size", visLine.legend.fontSize)
                 .attr("dx", "15px")
                 .attr("dy", ".40em")
@@ -419,24 +400,16 @@ define(['../module'], function (controllers) {
         /*
         * Função responsável por renderizar a escalade sentimento textual (Axis Y)
         */
-        function renderFocusSentimentScale() {
+        function renderFocusCountTweetsScale() {            
             /*
-            * Define uma escala ordinal de sentimentos para ser utilizada no gráfico principal
-            */           
-            var labelScale = d3.scale.ordinal()
-            .domain($scope.visualization.sentiments.map(function(d){ return d.description; }))
-            .rangePoints([0, visLine.height])
-            ;
-            
-            /*
-            * Define a axis (Y) com a representação textual da escala de sentimentos
-            */              
+            * Define a axis (Y) com a representação da escala do total de tweets
+            */        
             var sentimentAxis = d3.svg.axis()
-            .scale(labelScale)
+            .scale(y)
             .orient("left");
 
             /*
-            * Renderiza a axis de sentimento textual (Y)
+            * Renderiza a axis Y
             */   
             svg.append("g")
             .attr("class", "y axis")
@@ -448,7 +421,7 @@ define(['../module'], function (controllers) {
                 .attr("x", -5)
                 .attr("dy", ".71em")
                 .style("text-anchor", "end")
-                .text("Sentimentos ");
+                .text("Quantide de Tweets");
         }
 
         /*
@@ -461,16 +434,6 @@ define(['../module'], function (controllers) {
             context = svg.append("g")
             .attr("class", "context")
             .attr("transform", "translate(" + axis.ctrl.coord.x + "," + axis.ctrl.coord.y + ")");
-
-            /*
-            * Renderiza a linha do gráfico de controle se tiver apenas um assunto
-            */
-            if( axisLabel.length < 2 ) {
-                context.append("path")
-                .datum($scope.lines)
-                .attr("class", "area")
-                .attr("d", area2);
-            }
 
             /*
             * Rendereiza a axis X (time) do gráfico de controle
@@ -511,7 +474,7 @@ define(['../module'], function (controllers) {
         */
         function brushedend(){
             x.domain(brush.empty() ? x2.domain() : brush.extent());
-            
+
             focus.selectAll(".area-g")
             .transition().duration(visLine.transition.duration).ease(visLine.transition.ease)
             .attr("d", area);
@@ -557,5 +520,5 @@ define(['../module'], function (controllers) {
 
     }
 
-    controllers.controller('VisSingleLine', ['$scope', '$rootScope', '$routeParams', '$location', 'VisualizationFactory', 'TweetFactory', VisSingleLine]);
+    controllers.controller('VisMultiLine', ['$scope', '$rootScope', '$routeParams', '$location', 'VisualizationFactory', 'TweetFactory', VisMultiLine]);
 });
