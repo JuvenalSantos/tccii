@@ -1,3 +1,68 @@
+Version 0.2.0:
+ - Merge branch 'feature-AddDD-DDL' into develop
+ - Adiciona o script de criação do banco de dados
+ - Merge branch 'feature-AddUploadPathAutomatic' into develop
+ - Adiciona o caminho do diretorio upload a partir dos parametros internos do Symfony não sendo mais necessários a configuração manual.
+ - Merge branch 'fixbug-UploadFolderPath' into develop
+ - Corrige local do diretorio upload
+ - Merge branch 'fixbug-UploadFolder' into develop
+ - Corrige a configuração do git para versionar apenas o diretorio upload
+ - Merge branch 'feature-UpdateReadme' into develop
+ - Atualiza o README
+ - Merge branch 'feature-AddTimeControllStyle' into develop
+ - Adiciona estilo para destacar a time controll.
+ - Merge branch 'featute-VisSingleLineMultiLine-AdicionaAgrupamentoPorHora' into develop
+ - Adiciona nas visualizações VisSingleLine e VisMultiLine a opção de agrupamento por hora. Altera a escala da VisMultiLine ao alterar o agrupamento. Corrige a relação das linhas com a legenda da VisSingleLine ao alterar o agrupamento.
+ - Merge branch 'feature-AdicionaMelhoriasGerais' into develop
+ - Remove botão de agregação invalidos
+ - Altera o icone dos botões de navegação entre as visualizações
+ - Adiciona loader em todas as visualizações
+ - Adiciona sublegenda nos graficos SingleLine e Multiline
+ - Altera o posicionamento das legendas dos graficos SingleLine e MultiLine
+ - Merge branch 'feature-VisCircle-AddPacking' into develop
+ - Adiciona comentários ao código. Corrige identações. Remove debugs.
+ - Altera o retweet para follower
+ - Adiciona apresentação dos circulos ordenados por quantidade de tweets na divisão por assunto, assim como é exibido na apresentação geral
+ - Corrige a escala scaleCircleSize
+ - Corrige os icones dos botoes de agrupamento
+ - Adiciona escala de tamanho dos circulos de tweets com base em toda a visualização
+ - Adiciona separação por assunto. Adiciona tooltip da quantidade de Tweets de cada circulo do grafico principal. Adiciona visualização de Tweets por assunto
+ - Adiciona legenda no grafico de Tweet
+ - Adiciona separação/agrupamento dos Tweets por sentimento em ordem ascendente
+ - Adiciona número de followers no tooltip do tweet.
+ - Adiciona plugin d3-tip ao projeto.
+ - Melhoramento do posicionamento dos Tweets na Modal. Adiciona parametrização de comprimento e altura.
+ - Corrige os limites do grafico
+ - Adiciona tooltip do Tweet
+ - Corrige posicionamento dos circulos em Y. Adiciona modal para visualização dos Tweets por Hora
+ - Save circle state
+ - Merge branch 'fixbug-VisLine-FixLegendPosition' into develop
+ - Corrige posicionamento centralizado da legenda do gráfico principal
+ - Merge branch 'feature-VisMultiLine-AddLegend' into develop
+ - Adiciona legenda ao gráfico principal
+ - Merge branch 'feature-VisSingleLine-AddMultiSubject' into develop
+ - Adiciona legenda. Adiciona grafico de contexto como arquivos com somente 1 (um) assunto.
+ - Corrige remoção dos path em focus
+ - Altera consultas para realizar agrupamento por assunto
+ - Merge branch 'fixbug-MelhoriasLayout' into develop
+ - Corrige  o titulo da pagina. Altera a posição do botão Arquivo para direita e renomeio para Opções.
+ - Merge branch 'feature-PadronizaTransicoes' into develop
+ - Adiciona link para visualizações em todas as visualizações
+ - Adiciona e padroniza o efeito transição em todas as visualizações. Adiciona efeito de transição na Axis X
+ - Merge branch 'feature-AddVisualizationCircles' into develop
+ - Remove VisBubble backend. Corrige erro VisualizationFactory
+ - Remove VisBubble
+ - Merge branch 'feature-AddVisualizationMultiLine' into develop
+ - Adiciona opções de agregação
+ - Adiciona efeito de transição ao final da seleção do periodo de tempo
+ - Adiciona Axis Y. Remove gradient. Adiciona scaleLineColor.
+ - Incio da implementação
+ - Adiciona transicao
+ - Adiciona VisCirculos
+ - Visualização Bubble finalizada para apresentar para Isabel
+ - Merge branch 'release-0.1.0' into develop
+ - Merge branch 'release-0.1.0'
+
 Version 0.1.0
  - Merge branch 'feature-AddBumpversion' into develop
  - Adiciona bumpversion
