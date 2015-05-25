@@ -21,3 +21,4 @@ backend/bin
 backend/var
 .idea
 *.php~
+*.*~
