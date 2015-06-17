@@ -240,7 +240,7 @@ define(['../module'], function (controllers) {
             scaleFontColor = d3.scale.linear()
             .domain(scaleFontSize.domain())
             //.rangeRound(["#484848", "#616161", "#7B7B7B", "#959595", "#AFAFAF"])
-            .rangeRound(["#AFAFAF", "#313131"])
+            .rangeRound(["#484848", "#313131"])
             .interpolate(d3.interpolateHsl)
             ; 
             
@@ -433,7 +433,7 @@ define(['../module'], function (controllers) {
             */
             context = svg.append("g")
             .attr("class", "context")
-            .attr("transform", "translate(" + axis.ctrl.coord.x + "," + axis.ctrl.coord.y + ")");
+            .attr("transform", "translate(" + axis.ctrl.coord.x + "," + (axis.ctrl.coord.y - 5)  + ")");
 
             /*
             * Rendereiza a axis X (time) do gráfico de controle
