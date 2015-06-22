@@ -444,11 +444,6 @@ define(['../module'], function (controllers) {
             .call(xAxis2);
 
             /*
-            * Inicializa o gráfico principal e o brush de controle da Timeline com o intervalo de datas completo
-            */
-            //brush.extent(x2.domain());
-
-            /*
             * Renderiza o brush do gráfico principal
             */
             context.append("g")
@@ -458,6 +453,17 @@ define(['../module'], function (controllers) {
             .attr("y", -canvas.padding)
             .attr("height", canvas.ctrlTime.height + canvas.padding - 1)
             ;
+
+            /*
+            * Renderiza a linha do gráfico de controle se tiver apenas um assunto
+            */
+            dataNest.forEach(function(d, e) {
+                context.append("path")
+                .datum(d.values)
+                .attr("class", "area-g")
+                .attr("stroke", function(){ return scaleLineColor(e); })
+                .attr("d", area2);
+            });
         }
 
         /*
