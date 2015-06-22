@@ -461,7 +461,7 @@ define(['../module'], function (controllers) {
                 context.append("path")
                 .datum(d.values)
                 .attr("class", "area-g")
-                .attr("stroke", function(){ return scaleLineColor(e); })
+                .attr("stroke", function(){ return scaleLineColor(d.key); })
                 .attr("d", area2);
             });
         }
