@@ -463,16 +463,6 @@ define(['../module'], function (controllers) {
             .attr("transform", "translate(" + axis.ctrl.coord.x + "," + (axis.ctrl.coord.y - 5) + ")");
 
             /*
-            * Renderiza a linha do gráfico de controle se tiver apenas um assunto
-            */
-            if( axisLabel.length < 2 ) {
-                context.append("path")
-                .datum($scope.lines)
-                .attr("class", "area")
-                .attr("d", area2);
-            }
-
-            /*
             * Rendereiza a axis X (time) do gráfico de controle
             */
             context.append("g")
@@ -495,6 +485,17 @@ define(['../module'], function (controllers) {
             .attr("y", -canvas.padding)
             .attr("height", canvas.ctrlTime.height + canvas.padding - 1)
             ;
+
+            /*
+            * Renderiza a linha do gráfico de controle se tiver apenas um assunto
+            */
+            dataNest.forEach(function(d, e) {
+                context.append("path")
+                .datum(d.values)
+                .attr("class", "area-g")
+                .attr("stroke", function(){ return subjectLineColor(e); })
+                .attr("d", area2);
+            });
         }
 
         /*
