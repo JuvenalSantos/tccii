@@ -240,7 +240,7 @@ define(['../module'], function (controllers) {
             scaleFontColor = d3.scale.linear()
             .domain(scaleFontSize.domain())
             //.rangeRound(["#484848", "#616161", "#7B7B7B", "#959595", "#AFAFAF"])
-            .rangeRound(["#AFAFAF", "#313131"])
+            .rangeRound(["#484848", "#313131"])
             .interpolate(d3.interpolateHsl)
             ; 
             
@@ -433,7 +433,7 @@ define(['../module'], function (controllers) {
             */
             context = svg.append("g")
             .attr("class", "context")
-            .attr("transform", "translate(" + axis.ctrl.coord.x + "," + axis.ctrl.coord.y + ")");
+            .attr("transform", "translate(" + axis.ctrl.coord.x + "," + (axis.ctrl.coord.y - 5)  + ")");
 
             /*
             * Rendereiza a axis X (time) do gráfico de controle
@@ -442,11 +442,6 @@ define(['../module'], function (controllers) {
             .attr("class", "x axis")
             .attr("transform", "translate(0," + canvas.ctrlTime.height + ")")
             .call(xAxis2);
-
-            /*
-            * Inicializa o gráfico principal e o brush de controle da Timeline com o intervalo de datas completo
-            */
-            //brush.extent(x2.domain());
 
             /*
             * Renderiza o brush do gráfico principal
@@ -458,6 +453,17 @@ define(['../module'], function (controllers) {
             .attr("y", -canvas.padding)
             .attr("height", canvas.ctrlTime.height + canvas.padding - 1)
             ;
+
+            /*
+            * Renderiza a linha do gráfico de controle se tiver apenas um assunto
+            */
+            dataNest.forEach(function(d, e) {
+                context.append("path")
+                .datum(d.values)
+                .attr("class", "area-g")
+                .attr("stroke", function(){ return scaleLineColor(d.key); })
+                .attr("d", area2);
+            });
         }
 
         /*
